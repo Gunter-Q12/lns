@@ -35,11 +35,12 @@ pub struct RuleDef {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "lowercase", untagged)]
 pub enum Expression {
     Match(MatchExpr),
     Accept(Option<Value>),
     Drop(Option<Value>),
+    Unknown(Value),
 }
 
 #[derive(Debug, Deserialize, Serialize)]
