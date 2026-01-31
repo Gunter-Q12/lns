@@ -3,7 +3,7 @@ use std::net::Ipv4Addr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Hook {
-    Filter,
+    Input,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -13,6 +13,7 @@ pub enum Family {
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Chain {
+    pub name: String,
     pub table: Table,
     pub hook: Hook,
     pub priority: i32,

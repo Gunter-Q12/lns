@@ -1,5 +1,5 @@
-use anyhow;
 use crate::models::*;
+use anyhow;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::net::Ipv4Addr;
@@ -12,43 +12,23 @@ pub fn parse(input: &str) -> anyhow::Result<Vec<Chain>> {
         .ok_or_else(|| anyhow::anyhow!("Missing nftables array"))?;
 
     // Collect chains and rules by table+chain name
-    let mut chains_map: HashMap<(String, String), ChainBuilder> = HashMap::new();
-    let mut tables: HashMap<String, Table> = HashMap::new();
+    let mut chains_map: HashMap<(&str, &str), Chain> = HashMap::new();
+    // let mut tables: HashMap<String, Table> = HashMap::new();
 
     for item in nftables {
-        if let Some(table_obj) = item.get("table") {
-            let name = table_obj["name"].as_str().unwrap().to_string();
-            let family_str = table_obj["family"].as_str().unwrap();
-            let family = match family_str {
-                "inet" => Family::Inet,
-                _ => continue,
-            };
-            tables.insert(name.clone(), Table { name, family });
-        }
-
         if let Some(chain_obj) = item.get("chain") {
-            let table_name = chain_obj["table"].as_str().unwrap().to_string();
-            let chain_name = chain_obj["name"].as_str().unwrap().to_string();
-            let hook_str = chain_obj["type"].as_str().unwrap();
-            let hook = match hook_str {
-                "filter" => Hook::Filter,
-                _ => continue,
-            };
-            let priority = chain_obj["prio"].as_i64().unwrap() as i32;
+            if let Ok(chain) = build_chain(chain_obj) {
+                chains_map.insert(
+                    (&chain.table.name, &chain.name),
+                    chain,
+                );
+            }
 
-            chains_map.insert(
-                (table_name.clone(), chain_name),
-                ChainBuilder {
-                    hook,
-                    priority,
-                    rules: Vec::new(),
-                },
-            );
         }
 
         if let Some(rule_obj) = item.get("rule") {
             let table_name = rule_obj["table"].as_str().unwrap().to_string();
-            let chain_name = rule_obj["chain"].as_str().unwrap().to_string();
+            let chain_name: String = rule_obj["chain"].as_str().unwrap().to_string();
             let key = (table_name, chain_name);
 
             if let Some(expr) = rule_obj["expr"].as_array() {
@@ -105,24 +85,45 @@ pub fn parse(input: &str) -> anyhow::Result<Vec<Chain>> {
 
     // Build final chains
     let mut result = Vec::new();
-    for ((table_name, _), builder) in chains_map {
-        if let Some(table) = tables.get(&table_name).cloned() {
-            result.push(Chain {
-                table,
-                hook: builder.hook,
-                priority: builder.priority,
-                rules: builder.rules,
-            });
-        }
-    }
+    // for ((table_name, _), builder) in chains_map {
+    //     if let Some(table) = tables.get(&table_name).cloned() {
+    //         result.push(Chain {
+    //             table,
+    //             hook: builder.hook,
+    //             priority: builder.priority,
+    //             rules: builder.rules,
+    //         });
+    //     }
+    // }
 
     Ok(result)
 }
 
-struct ChainBuilder {
-    hook: Hook,
-    priority: i32,
-    rules: Vec<Rule>,
+fn build_chain(obj: &Value) -> anyhow::Result<Chain> {
+    let table_name = obj["table"].as_str().unwrap().to_string();
+    let family_str = obj["family"].as_str().unwrap();
+    let family = match family_str {
+        "inet" => Family::Inet,
+        _ => anyhow::bail!("Unsupported family name {}", family_str),
+    };
+    let chain_name = obj["name"].as_str().unwrap().to_string();
+    let hook_str = obj["hook"].as_str().unwrap();
+    let hook = match hook_str {
+        "input" => Hook::Input,
+        _ => anyhow::bail!("Unsupported hook name {}", hook_str),
+    };
+    let priority = obj["prio"].as_i64().unwrap() as i32;
+
+    Ok(Chain {
+        name: chain_name,
+        table: Table {
+            name: table_name,
+            family: family,
+        },
+        hook,
+        priority,
+        rules: Vec::new(),
+    })
 }
 
 #[cfg(test)]
@@ -133,8 +134,8 @@ mod tests {
 
     #[test]
     fn test_parse_empty() {
-        let input = fs::read_to_string("src/testdata/empty.json")
-            .expect("Failed to read empty.json");
+        let input =
+            fs::read_to_string("src/testdata/empty.json").expect("Failed to read empty.json");
 
         let result = parse(&input).expect("Failed to parse empty.json");
 
@@ -149,11 +150,12 @@ mod tests {
         let result = parse(&input).expect("Failed to parse filter_drop.json");
 
         let expected = vec![Chain {
+            name: String::from("input"),
             table: Table {
                 name: "filter".to_string(),
                 family: Family::Inet,
             },
-            hook: Hook::Filter,
+            hook: Hook::Input,
             priority: 0,
             rules: vec![Rule {
                 match_clue: Match {
