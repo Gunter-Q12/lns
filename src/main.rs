@@ -1,5 +1,6 @@
 mod server;
 mod nft;
+mod ip;
 
 use server::Server;
 
