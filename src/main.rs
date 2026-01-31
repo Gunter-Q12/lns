@@ -1,4 +1,3 @@
-mod models;
 mod server;
 mod nft;
 mod nft_models;
