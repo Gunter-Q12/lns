@@ -1,7 +1,5 @@
 mod server;
 mod nft;
-mod nft_models;
-mod nft_parse;
 
 use server::Server;
 
@@ -18,7 +16,7 @@ async fn main() {
         };
 
         // Parse the nft output into our models
-        let chains = match nft_parse::parse(&nft_output) {
+        let chains = match nft::parse(&nft_output) {
             Ok(chains) => chains,
             Err(e) => {
                 eprintln!("Failed to parse nft output: {}", e);

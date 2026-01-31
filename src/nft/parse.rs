@@ -1,4 +1,4 @@
-use crate::nft_models::NftablesRoot;
+use super::models::NftablesRoot;
 use anyhow::Result;
 
 /// Parse nftables JSON output into structured data
@@ -19,11 +19,11 @@ mod tests {
 
     #[test]
     fn test_parse_empty_nftables() {
-        let json_content = fs::read_to_string("src/testdata/nft_empty.json")
-            .expect("Failed to read nft_empty.json");
+        let json_content = fs::read_to_string("src/nft/testdata/empty.json")
+            .expect("Failed to read empty.json");
 
         let result = parse(&json_content);
-        assert!(result.is_ok(), "Failed to parse nft_empty.json: {:?}", result.err());
+        assert!(result.is_ok(), "Failed to parse empty.json: {:?}", result.err());
 
         let nftables = result.unwrap();
         // Empty ruleset still contains metainfo item
@@ -32,11 +32,11 @@ mod tests {
 
     #[test]
     fn test_parse_filter_drop() {
-        let json_content = fs::read_to_string("src/testdata/nft_filter_drop.json")
-            .expect("Failed to read nft_filter_drop.json");
+        let json_content = fs::read_to_string("src/nft/testdata/filter_drop.json")
+            .expect("Failed to read filter_drop.json");
 
         let result = parse(&json_content);
-        assert!(result.is_ok(), "Failed to parse nft_filter_drop.json: {:?}", result.err());
+        assert!(result.is_ok(), "Failed to parse filter_drop.json: {:?}", result.err());
 
         let nftables = result.unwrap();
         assert!(nftables.nftables.len() > 0, "Expected non-empty nftables array");
