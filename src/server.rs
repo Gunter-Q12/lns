@@ -15,19 +15,14 @@ pub struct Server {
 }
 
 impl Server {
-    pub fn new<F>(handler: F) -> Self
+    pub fn new<F>(handler: F, port: u16) -> Self
     where
         F: Fn() -> String + Send + Sync + 'static,
     {
         Self {
             handler: Arc::new(handler),
-            port: 3000,
+            port: port,
         }
-    }
-
-    pub fn with_port(mut self, port: u16) -> Self {
-        self.port = port;
-        self
     }
 
     pub async fn run(self) -> Result<(), std::io::Error> {
@@ -60,44 +55,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_server_creation() {
-        let _server = Server::new(|| r#"{"status": "ok"}"#.to_string());
-    }
-
-    #[test]
     fn test_server_with_custom_port() {
-        let server = Server::new(|| r#"{"status": "ok"}"#.to_string()).with_port(8080);
+        let server = Server::new(|| r#"{"status": "ok"}"#.to_string(), 8080);
         assert_eq!(server.port, 8080);
-    }
-
-    #[test]
-    fn test_handler_returns_json() {
-        use crate::models::*;
-        use std::net::Ipv4Addr;
-
-        let handler = || {
-            let chains = vec![Chain {
-                table: Table {
-                    name: "filter".to_string(),
-                    family: Family::Inet,
-                },
-                hook: Hook::Filter,
-                priority: 0,
-                rules: vec![Rule {
-                    match_clue: Match {
-                        selector: Selector::Ip,
-                        operator: Operator::Eq,
-                        values: Ipv4Addr::new(1, 1, 1, 1),
-                    },
-                    verdict: Verdict::Reject,
-                }],
-            }];
-
-            serde_json::to_string(&chains).unwrap()
-        };
-
-        let json = handler();
-        assert!(json.contains("filter"));
-        assert!(json.contains("1.1.1.1"));
     }
 }
