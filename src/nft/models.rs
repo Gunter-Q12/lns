@@ -7,14 +7,6 @@ pub struct NftablesRoot {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-#[serde(untagged)]
-pub enum NftablesItem {
-    Chain(ChainDef),
-    Rule(RuleDef),
-    Unknown(Value),
-}
-
-#[derive(Debug, Deserialize, Serialize)]
 pub struct ChainDef {
     pub family: String,
     pub table: String,
@@ -35,9 +27,17 @@ pub struct RuleDef {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase", untagged)]
+#[serde(untagged)]
+pub enum NftablesItem {
+    Chain { chain: ChainDef },
+    Rule { rule: RuleDef },
+    Unknown(Value),
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(untagged)]
 pub enum Expression {
-    Match(MatchExpr),
+    Match { r#match: MatchExpr },
     Accept(Option<Value>),
     Drop(Option<Value>),
     Unknown(Value),
@@ -46,8 +46,13 @@ pub enum Expression {
 #[derive(Debug, Deserialize, Serialize)]
 pub struct MatchExpr {
     pub op: String,
-    pub left: Payload,
-    pub right: String,
+    pub left: LeftExpr,
+    pub right: Value,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+pub struct LeftExpr {
+    pub payload: Payload,
 }
 
 #[derive(Debug, Deserialize, Serialize)]

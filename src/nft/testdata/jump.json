@@ -1,0 +1,99 @@
+{
+    "nftables": [
+        {
+            "metainfo": {
+                "version": "1.0.9",
+                "release_name": "Old Doc Yak #3",
+                "json_schema_version": 1
+            }
+        },
+        {
+            "table": {
+                "family": "arp",
+                "name": "arp_example",
+                "handle": 1
+            }
+        },
+        {
+            "chain": {
+                "family": "arp",
+                "table": "arp_example",
+                "name": "main_chain",
+                "handle": 1
+            }
+        },
+        {
+            "chain": {
+                "family": "arp",
+                "table": "arp_example",
+                "name": "check_chain",
+                "handle": 2
+            }
+        },
+        {
+            "rule": {
+                "family": "arp",
+                "table": "arp_example",
+                "chain": "main_chain",
+                "handle": 3,
+                "expr": [
+                    {
+                        "jump": {
+                            "target": "check_chain"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "rule": {
+                "family": "arp",
+                "table": "arp_example",
+                "chain": "check_chain",
+                "handle": 4,
+                "expr": [
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "arp",
+                                    "field": "operation"
+                                }
+                            },
+                            "right": "request"
+                        }
+                    },
+                    {
+                        "accept": null
+                    }
+                ]
+            }
+        },
+        {
+            "rule": {
+                "family": "arp",
+                "table": "arp_example",
+                "chain": "check_chain",
+                "handle": 5,
+                "expr": [
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "arp",
+                                    "field": "operation"
+                                }
+                            },
+                            "right": "reply"
+                        }
+                    },
+                    {
+                        "drop": null
+                    }
+                ]
+            }
+        }
+    ]
+}
