@@ -66,6 +66,18 @@ mod tests {
     use super::*;
     use std::fs;
 
+    fn setup_restructured(filename: &str) -> HashMap<String, HashMap<String, (ChainDef, Vec<RuleDef>)>> {
+        let json_content = fs::read_to_string(filename)
+            .expect("Failed to read filter_drop.json");
+        let result = parse(&json_content);
+        assert!(result.is_ok(), "Failed to parse filter_drop.json: {:?}", result.err());
+        let nftables = result.unwrap();
+        assert!(nftables.nftables.len() > 0, "Expected non-empty nftables array");
+        let restructured = restructure(nftables);
+        assert!(restructured.contains_key("input"), "Expected 'input' hook in restructured data");
+        restructured
+    }
+
     #[test]
     fn test_parse_empty_nftables() {
         let json_content =
@@ -95,20 +107,13 @@ mod tests {
 
     #[test]
     fn test_parse_filter_drop() {
-        let json_content = fs::read_to_string("src/nft/testdata/filter_drop.json")
-            .expect("Failed to read filter_drop.json");
-        let result = parse(&json_content);
-        assert!(result.is_ok(), "Failed to parse filter_drop.json: {:?}", result.err());
-        let nftables = result.unwrap();
-        assert!(nftables.nftables.len() > 0, "Expected non-empty nftables array");
-        let restructured = restructure(nftables);
-        assert!(restructured.contains_key("input"), "Expected 'input' hook in restructured data");
+        let restructured = setup_restructured("src/nft/testdata/filter_drop.json");
 
         let input_chains = &restructured["input"];
         assert!(!input_chains.is_empty(), "Expected at least one chain for 'input' hook");
 
         let (_, rules) = &input_chains["input"];
-        assert_eq!(!rules.len(),1 , "Expected exactly one rule in chain");
+        assert_eq!(rules.len(), 1, "Expected exactly one rule in chain");
 
         let rule = &rules[0];
         assert_eq!(rule.expr.len(), 2, "Expected exactly two expressions in rule");
@@ -128,20 +133,13 @@ mod tests {
 
     #[test]
     fn test_parse_arp_drop() {
-        let json_content = fs::read_to_string("src/nft/testdata/filter_drop.json")
-            .expect("Failed to read filter_drop.json");
-        let result = parse(&json_content);
-        assert!(result.is_ok(), "Failed to parse filter_drop.json: {:?}", result.err());
-        let nftables = result.unwrap();
-        assert!(nftables.nftables.len() > 0, "Expected non-empty nftables array");
-        let restructured = restructure(nftables);
-        assert!(restructured.contains_key("input"), "Expected 'input' hook in restructured data");
+        let restructured = setup_restructured("src/nft/testdata/arp_drop.json");
 
         let input_chains = &restructured["input"];
         assert!(!input_chains.is_empty(), "Expected at least one chain for 'input' hook");
 
         let (_, rules) = &input_chains["input"];
-        assert_eq!(!rules.len(),1 , "Expected exactly one rule in chain");
+        assert_eq!(rules.len(), 1, "Expected exactly one rule in chain");
 
         let rule = &rules[0];
         assert_eq!(rule.expr.len(), 2, "Expected exactly two expressions in rule");
