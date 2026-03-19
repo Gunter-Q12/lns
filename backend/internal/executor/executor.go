@@ -2,7 +2,6 @@ package executor
 
 import (
 	"context"
-	"io"
 	"os/exec"
 
 	"go.uber.org/zap"
@@ -16,17 +15,18 @@ func New(logger *zap.Logger) *Executor {
 	return &Executor{logger: logger}
 }
 
-func (e *Executor) Run(ctx context.Context, name string, args ...string) (io.Reader, error) {
+func (e *Executor) Run(ctx context.Context, name string, args ...string) ([]byte, error) {
 	cmd := exec.CommandContext(ctx, name, args...)
-	stdout, err := cmd.StdoutPipe()
+	out, err := cmd.Output()
 	if err != nil {
-		e.logger.Fatal("running command", zap.Error(err))
+		return nil, err
 	}
-	if err := cmd.Start(); err != nil {
-		e.logger.Fatal("command execution failed", zap.Error(err))
-	}
-	if err := cmd.Wait(); err != nil {
-		e.logger.Fatal("failed to end command", zap.Error(err))
-	}
-	return stdout, nil
+
+	e.logger.Info("command executed",
+		zap.String("command", name),
+		zap.Strings("args", args),
+		zap.ByteString("result", out),
+	)
+
+	return out, nil
 }

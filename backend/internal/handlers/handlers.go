@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"errors"
-	"io"
 	"net/http"
 
 	"github.com/Gunter-Q12/lns/backend/internal/executor"
@@ -11,7 +9,7 @@ import (
 )
 
 func Map(r *gin.Engine, h *Handlers) {
-	r.GET("/api/*", h.Get)
+	r.GET("/api/*path", h.Get)
 }
 
 type Handlers struct {
@@ -24,24 +22,29 @@ func New(exe *executor.Executor, logger *zap.Logger) *Handlers {
 }
 
 func (h *Handlers) Get(c *gin.Context) {
-	var info io.Reader
-	var err error
-	switch c.Request.URL.Path {
-	case "/api/nft":
-		info, err = h.exe.Run(c.Request.Context(), "nft", "--json", "list", "ruleset")
-	case "api/route":
-		info, err = h.exe.Run(c.Request.Context(), "ip", "--json", "route", "show", "table", "all")
-	case "api/addr":
-		info, err = h.exe.Run(c.Request.Context(), "ip", "--json", "addr")
+	var cmd string
+	var args []string
+	switch c.Param("path") {
+	case "/nft":
+		cmd = "nft"
+		args = []string{"--json", "list", "ruleset"}
+	case "/route":
+		cmd = "ip"
+		args = []string{"--json", "route", "show", "table", "all"}
+	case "/addr":
+		cmd = "ip"
+		args = []string{"--json", "addr"}
 	default:
-		err = errors.New("Incorrect path")
+		c.String(http.StatusNotFound, "Available paths: /api/nft, /api/route, /api/addr. Received path: %s", c.Request.URL.Path)
+		return
 	}
 
+	info, err := h.exe.Run(c.Request.Context(), cmd, args...)
 	if err != nil {
-		h.logger.Info("getting nft data", zap.Error(err))
+		h.logger.Error("getting data", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"errors": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, info)
+	c.Data(http.StatusOK, "application/json", []byte(info))
 }
