@@ -19,7 +19,11 @@
                 "family": "arp",
                 "table": "arp_filter",
                 "name": "arp_rules",
-                "handle": 1
+                "handle": 5,
+                "type": "filter",
+                "hook": "input",
+                "prio": 0,
+                "policy": "accept"
             }
         },
         {

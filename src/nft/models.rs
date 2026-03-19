@@ -38,8 +38,8 @@ pub enum NftablesItem {
 #[serde(untagged)]
 pub enum Expression {
     Match { r#match: MatchExpr },
-    Accept(Option<Value>),
-    Drop(Option<Value>),
+    Drop { r#drop: Option<Value> },
+    Accept { accept: Option<Value> },
     Unknown(Value),
 }
 

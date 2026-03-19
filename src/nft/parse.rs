@@ -125,7 +125,7 @@ mod tests {
             panic!("First expression should be Match");
         }
 
-        if let Expression::Drop(_) = &rule.expr[1] {
+        if let Expression::Drop { r#drop:  _} = &rule.expr[1] {
         } else {
             panic!("Second expression should be Drop");
         }
@@ -151,10 +151,34 @@ mod tests {
             panic!("First expression should be Match");
         }
 
-        if let Expression::Drop(_) = &rule.expr[1] {
+        if let Expression::Drop { r#drop: _ } = &rule.expr[1] {
         } else {
             panic!("Second expression should be Drop");
         }
+    }
+
+    #[test]
+    fn test_parse_long_chain() {
+        let restructured = setup_restructured("src/nft/testdata/long_chain.json");
+
+        let input_chains = &restructured["input"];
+        assert!(input_chains.contains_key("arp_rules"), "Expected 'arp_rules' chain in 'input' hook");
+
+        let (_, rules) = &input_chains["arp_rules"];
+        assert_eq!(rules.len(), 3, "Expected exactly three rules in 'arp_rules' chain");
+    }
+
+    #[test]
+    fn test_parse_hookless() {
+        let json_content = fs::read_to_string("src/nft/testdata/hookless.json")
+            .expect("Failed to read hookless.json");
+
+        let result = parse(&json_content);
+        assert!(result.is_ok(), "Failed to parse hookless.json: {:?}", result.err());
+
+        let nftables = result.unwrap();
+        let restructured = restructure(nftables);
+        assert!(restructured.is_empty(), "Expected empty restructured data for hookless nftables");
     }
 }
 
@@ -165,7 +189,7 @@ mod debug_tests {
 
     #[test]
     fn test_print_parsed() {
-        let json_content = fs::read_to_string("src/nft/testdata/filter_drop.json")
+        let json_content = fs::read_to_string("src/nft/testdata/arp_drop.json")
             .expect("Failed to read filter_drop.json");
 
         let result = parse(&json_content).unwrap();
