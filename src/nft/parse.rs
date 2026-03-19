@@ -164,8 +164,14 @@ mod tests {
         let input_chains = &restructured["input"];
         assert!(input_chains.contains_key("arp_rules"), "Expected 'arp_rules' chain in 'input' hook");
 
-        let (_, rules) = &input_chains["arp_rules"];
+        let (chain, rules) = &input_chains["arp_rules"];
         assert_eq!(rules.len(), 3, "Expected exactly three rules in 'arp_rules' chain");
+
+        // Verify handles are parsed and present
+        assert!(chain.handle > 0, "Chain handle should be positive");
+        for rule in rules {
+            assert!(rule.handle > 0, "Rule handle should be positive");
+        }
     }
 
     #[test]
@@ -194,6 +200,6 @@ mod debug_tests {
 
         let result = parse(&json_content).unwrap();
 
-        println!("{:#?}", result);
+        println!("{:#?}", restructure(result));
     }
 }

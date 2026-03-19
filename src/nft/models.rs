@@ -8,6 +8,7 @@ pub struct NftablesRoot {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct ChainDef {
+    pub handle: u64,
     pub family: String,
     pub table: String,
     pub name: String,
@@ -20,6 +21,7 @@ pub struct ChainDef {
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct RuleDef {
+    pub handle: u64,
     pub family: String,
     pub table: String,
     pub chain: String,
