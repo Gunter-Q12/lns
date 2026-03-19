@@ -1,0 +1,66 @@
+[
+  { "data": { "id": "ingress", "name": "Ingress" }, "position": { "x": 100, "y": 490 } },
+  { "data": { "id": "bridge_port_q", "name": "Bridge Port?" }, "position": { "x": 250, "y": 490 } },
+  { "data": { "id": "protocol_type_q", "name": "Protocol Type?" }, "position": { "x": 250, "y": 370 } },
+
+  { "data": { "id": "local_process", "name": "Local Process" }, "position": { "x": 550, "y": 80 } },
+
+  { "data": { "id": "ip", "name": "IP" } },
+  { "data": { "id": "ip_prerouting", "name": "Prerouting", "parent": "ip" }, "position": { "x": 450, "y": 280 } },
+  { "data": { "id": "ip_routing_decision", "name": "Routing", "parent": "ip" }, "position": { "x": 550, "y": 280 } },
+  { "data": { "id": "ip_routing_decision_local", "name": "Routing", "parent": "ip" }, "position": { "x": 650, "y": 180 } },
+  { "data": { "id": "ip_input", "name": "Input", "parent": "ip" }, "position": { "x": 550, "y": 180 } },
+  { "data": { "id": "ip_output", "name": "Output", "parent": "ip" }, "position": { "x": 750, "y": 180 } },
+  { "data": { "id": "ip_forward", "name": "Forward", "parent": "ip" }, "position": { "x": 650, "y": 280 } },
+  { "data": { "id": "ip_postrouting", "name": "Postrouting", "parent": "ip" }, "position": { "x": 750, "y": 280 } },
+  { "data": { "id": "bridge_device_q", "name": "Bridge Device?", "parent": "ip" }, "position": { "x": 850, "y": 280 } },
+
+  { "data": { "id": "bridge", "name": "Bridge" } },
+  { "data": { "id": "bridge_prerouting", "name": "Prerouting", "parent": "bridge" }, "position": { "x": 450, "y": 490 } },
+  { "data": { "id": "bridge_input", "name": "Input", "parent": "bridge" }, "position": { "x": 550, "y": 410 } },
+  { "data": { "id": "bridge_decision", "name": "Routing", "parent": "bridge" }, "position": { "x": 550, "y": 490 } },
+  { "data": { "id": "bridge_forward", "name": "Forward", "parent": "bridge" }, "position": { "x": 700, "y": 490 } },
+  { "data": { "id": "bridge_postrouting", "name": "Postrouting", "parent": "bridge" }, "position": { "x": 850, "y": 490 } },
+  { "data": { "id": "bridge_output", "name": "Output", "parent": "bridge" }, "position": { "x": 850, "y": 410 } },
+
+  { "data": { "id": "arp", "name": "ARP" } },
+  { "data": { "id": "arp_input", "name": "Input", "parent": "arp" }, "position": { "x": 450, "y": 620 } },
+  { "data": { "id": "arp_handler", "name": "Handler", "parent": "arp" }, "position": { "x": 650, "y": 620 } },
+  { "data": { "id": "arp_output", "name": "Output", "parent": "arp" }, "position": { "x": 850, "y": 620 } },
+
+  { "data": { "id": "egress", "name": "Egress" }, "position": { "x": 1050, "y": 490 } },
+
+
+
+  { "data": { "id": "ingress_to_bridge_port", "source": "ingress", "target": "bridge_port_q", "group": "ingress" } },
+
+  { "data": { "id": "bridge_port_yes", "source": "bridge_port_q", "target": "bridge_prerouting", "group": "bridge" } },
+  { "data": { "id": "bridge_port_no", "source": "bridge_port_q", "target": "protocol_type_q", "group": "bridge" } },
+  { "data": { "id": "bridge_pre_to_input", "source": "bridge_prerouting", "target": "bridge_decision", "group": "bridge" } },
+  { "data": { "id": "bridge_input_to_decision", "source": "bridge_decision", "target": "bridge_input", "group": "bridge" } },
+  { "data": { "id": "bridge_decision_to_forward", "source": "bridge_decision", "target": "bridge_forward", "group": "bridge" } },
+  { "data": { "id": "bridge_forward_to_post", "source": "bridge_forward", "target": "bridge_postrouting", "group": "bridge" } },
+  { "data": { "id": "bridge_post_to_output", "source": "bridge_postrouting", "target": "egress", "group": "bridge" } },
+  { "data": { "id": "bridge_output_to_egress", "source": "bridge_output", "target": "bridge_postrouting", "group": "bridge" } },
+
+  { "data": { "id": "proto_ip", "source": "protocol_type_q", "target": "ip_prerouting", "group": "ip" } },
+  { "data": { "id": "ip_prerouting_to_routing", "source": "ip_prerouting", "target": "ip_routing_decision", "group": "ip" } },
+  { "data": { "id": "ip_local", "source": "ip_routing_decision", "target": "ip_input", "group": "ip" } },
+  { "data": { "id": "ip_forward_path", "source": "ip_routing_decision", "target": "ip_forward", "group": "ip" } },
+  { "data": { "id": "ip_input_to_app", "source": "ip_input", "target": "local_process", "group": "ip" } },
+  { "data": { "id": "app_to_routing", "source": "local_process", "target": "ip_routing_decision_local", "group": "ip" } },
+  { "data": { "id": "routing_to_ip_output", "source": "ip_routing_decision_local", "target": "ip_output", "group": "ip" } },
+  { "data": { "id": "ip_forward_to_post", "source": "ip_forward", "target": "ip_postrouting", "group": "ip" } },
+  { "data": { "id": "ip_output_to_post", "source": "ip_output", "target": "ip_postrouting", "group": "ip" } },
+  { "data": { "id": "ip_post_to_bridge_device", "source": "ip_postrouting", "target": "bridge_device_q", "group": "ip" } },
+  { "data": { "id": "bridge_device_to_egress", "source": "bridge_device_q", "target": "egress", "group": "ip" } },
+  { "data": { "id": "bridge_device_to_bridge_output", "source": "bridge_device_q", "target": "bridge_output", "group": "ip" } },
+
+  { "data": { "id": "proto_arp", "source": "protocol_type_q", "target": "arp_input", "group": "arp" } },
+  { "data": { "id": "arp_in_to_handler", "source": "arp_input", "target": "arp_handler", "group": "arp" } },
+  { "data": { "id": "arp_handler_to_out", "source": "arp_handler", "target": "arp_output", "group": "arp" } },
+  { "data": { "id": "arp_out_to_egress", "source": "arp_output", "target": "egress", "group": "arp" } },
+
+  { "data": { "id": "bridge_input_to_prerouting", "source": "bridge_input", "target": "ip_prerouting", "group": "connection" } }
+
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "selector": "node",
+    "style": {
+      "background-color": "#ffffff",
+      "border-width": 1,
+      "border-color": "#e2e8f0",
+      "shape": "round-rectangle",
+      "corner-radius": 6,
+      "content": "data(name)",
+      "text-valign": "center",
+      "text-halign": "center",
+      "font-family": "Inter, system-ui, sans-serif",
+      "font-size": "13px",
+      "font-weight": "500",
+      "color": "#64748b",
+      "padding": "12px",
+      "width": 60,
+      "text-wrap": "wrap",
+      "text-max-width": 40
+    }
+  },
+  {
+    "selector": ":parent",
+    "style": {
+      "background-color": "#f1f5f9",
+      "background-opacity": 0.4,
+      "border-color": "#e2e8f0",
+      "border-width": 1,
+      "shape": "round-rectangle",
+      "corner-radius": 12,
+      "padding": 20,
+      "content": "data(name)",
+      "text-valign": "top",
+      "text-halign": "center",
+      "color": "#64748b",
+      "font-size": "11px",
+      "font-weight": "600",
+      "text-margin-y": -8
+    }
+  },
+  {
+    "selector": "edge",
+    "style": {
+      "width": 1.5,
+      "line-color": "#cbd5e1",
+      "curve-style": "bezier",
+      "target-arrow-shape": "triangle",
+      "target-arrow-color": "#cbd5e1",
+      "arrow-scale": 0.8,
+      "line-opacity": 0.8
+    }
+  }
+]

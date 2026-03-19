@@ -1,0 +1,33 @@
+[
+  {
+    "id": 1,
+    "pin": "arp_input",
+    "info": {
+      "matcher": "ETH_P_ARP",
+      "decision": "ACCEPT"
+    },
+    "next": []
+  },
+  {
+    "id": 2,
+    "pin": "arp_input",
+    "info": {
+      "matcher": "ARP_REQUEST",
+      "decision": "FORWARD"
+    },
+    "next": [
+      1
+    ]
+  },
+  {
+    "id": 3,
+    "pin": "arp_input",
+    "info": {
+      "matcher": "INCOMING_PACKET",
+      "decision": "EVALUATE"
+    },
+    "next": [
+      2
+    ]
+  }
+]
