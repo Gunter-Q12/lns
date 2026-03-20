@@ -11,3 +11,4 @@ export const api: ApiClient = useMock
   : new RealApiClient(import.meta.env.VITE_API_Base_URL || '/api');
 
 export * from './types';
+export * from './nftTypes';

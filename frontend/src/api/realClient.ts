@@ -1,4 +1,5 @@
-import { ApiClient, Change, SubgraphNode, TraceRequest } from './types';
+import { ApiClient } from './types';
+import { NftResponse, NftResponseSchema } from './nftTypes';
 
 export class RealApiClient implements ApiClient {
   private baseUrl: string;
@@ -7,25 +8,27 @@ export class RealApiClient implements ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  async getSubgraphs(): Promise<SubgraphNode[]> {
-    const response = await fetch(`${this.baseUrl}/subgraphs`);
+  async getNft(): Promise<NftResponse> {
+    const response = await fetch(`${this.baseUrl}/nft`);
     if (!response.ok) {
-      throw new Error(`Failed to fetch subgraphs: ${response.statusText}`);
+      throw new Error(`Failed to fetch nft: ${response.statusText}`);
+    }
+    const data = await response.json();
+    return NftResponseSchema.parse(data);
+  }
+
+  async getRoute(): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/route`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch route: ${response.statusText}`);
     }
     return response.json();
   }
 
-  async tracePacket(request: TraceRequest): Promise<Change[]> {
-    const response = await fetch(`${this.baseUrl}/trace`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(request),
-    });
-
+  async getAddr(): Promise<any> {
+    const response = await fetch(`${this.baseUrl}/addr`);
     if (!response.ok) {
-      throw new Error(`Failed to trace packet: ${response.statusText}`);
+      throw new Error(`Failed to fetch addr: ${response.statusText}`);
     }
     return response.json();
   }

@@ -1,0 +1,26 @@
+{
+    "nftables": [
+        {
+            "metainfo": {
+                "version": "1.0.9",
+                "release_name": "Old Doc Yak #3",
+                "json_schema_version": 1
+            }
+        },
+        {
+            "table": {
+                "family": "arp",
+                "name": "arp_filter",
+                "handle": 1
+            }
+        },
+        {
+            "chain": {
+                "family": "arp",
+                "table": "arp_filter",
+                "name": "arp_rules",
+                "handle": 1
+            }
+        }
+    ]
+}

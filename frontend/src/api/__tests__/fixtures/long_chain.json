@@ -1,0 +1,105 @@
+{
+    "nftables": [
+        {
+            "metainfo": {
+                "version": "1.0.9",
+                "release_name": "Old Doc Yak #3",
+                "json_schema_version": 1
+            }
+        },
+        {
+            "table": {
+                "family": "arp",
+                "name": "arp_filter",
+                "handle": 1
+            }
+        },
+        {
+            "chain": {
+                "family": "arp",
+                "table": "arp_filter",
+                "name": "arp_rules",
+                "handle": 5,
+                "type": "filter",
+                "hook": "input",
+                "prio": 0,
+                "policy": "accept"
+            }
+        },
+        {
+            "rule": {
+                "family": "arp",
+                "table": "arp_filter",
+                "chain": "arp_rules",
+                "handle": 2,
+                "expr": [
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "arp",
+                                    "field": "operation"
+                                }
+                            },
+                            "right": "request"
+                        }
+                    },
+                    {
+                        "accept": null
+                    }
+                ]
+            }
+        },
+        {
+            "rule": {
+                "family": "arp",
+                "table": "arp_filter",
+                "chain": "arp_rules",
+                "handle": 3,
+                "expr": [
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "arp",
+                                    "field": "operation"
+                                }
+                            },
+                            "right": "reply"
+                        }
+                    },
+                    {
+                        "accept": null
+                    }
+                ]
+            }
+        },
+        {
+            "rule": {
+                "family": "arp",
+                "table": "arp_filter",
+                "chain": "arp_rules",
+                "handle": 4,
+                "expr": [
+                    {
+                        "match": {
+                            "op": "==",
+                            "left": {
+                                "payload": {
+                                    "protocol": "ether",
+                                    "field": "saddr"
+                                }
+                            },
+                            "right": "aa:bb:cc:dd:ee:ff"
+                        }
+                    },
+                    {
+                        "drop": null
+                    }
+                ]
+            }
+        }
+    ]
+}

@@ -1,18 +1,19 @@
-import { ApiClient, Change, SubgraphNode, TraceRequest } from './types';
-import subgraphsMock from '@/data/subgraphs.json';
-import changesMock from '@/data/changes.json';
+import { ApiClient } from './types';
+import { NftResponse } from './nftTypes';
 
 export class MockApiClient implements ApiClient {
-  async getSubgraphs(): Promise<SubgraphNode[]> {
-    // Simulate network delay
+  async getNft(): Promise<NftResponse> {
     await new Promise((resolve) => setTimeout(resolve, 300));
-    return subgraphsMock as SubgraphNode[];
+    return { nftables: [] };
   }
 
-  async tracePacket(request: TraceRequest): Promise<Change[]> {
-    console.log('[MockAPI] Tracing packet:', request);
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return changesMock as Change[];
+  async getRoute(): Promise<any> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return {};
+  }
+
+  async getAddr(): Promise<any> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    return {};
   }
 }
