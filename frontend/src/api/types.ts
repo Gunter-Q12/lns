@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { NftResponse } from './nftTypes';
 
 
