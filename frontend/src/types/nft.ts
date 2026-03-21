@@ -1,5 +1,9 @@
 import { z } from 'zod';
 
+export enum Hook {
+  IpPrerouting = "ip_prerouting",
+}
+
 export const MetainfoSchema = z.object({
   version: z.string(),
   release_name: z.string(),

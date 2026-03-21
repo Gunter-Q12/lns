@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import type cytoscape from 'cytoscape';
 import type { ElementDefinition } from 'cytoscape';
-import { Change } from '@/api';
+import { Change } from '@/types/packet';
 
 interface UseGraphHighlightProps {
   cy: cytoscape.Core | null;
@@ -24,8 +24,8 @@ export function useGraphHighlight({ cy, elements, currentView, changes }: UseGra
       let targetNode: cytoscape.CollectionReturnValue | null = null;
 
       if (currentView === 'overview') {
-        targetNode = cy.getElementById(change.pin);
-      } else if (currentView === change.pin) {
+        targetNode = cy.getElementById(change.hook);
+      } else if (currentView === change.hook) {
         targetNode = cy.getElementById(change.id.toString());
       }
 

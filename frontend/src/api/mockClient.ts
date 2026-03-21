@@ -1,4 +1,4 @@
-import { NftResponse } from './nftTypes';
+import { NftResponse } from '@/types/nft';
 
 export async function mockFetchNft(_baseUrl: string = '/api'): Promise<NftResponse> {
   await new Promise((resolve) => setTimeout(resolve, 300));

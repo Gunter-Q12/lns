@@ -14,6 +14,3 @@ export const fetchRoute = () =>
 
 export const fetchAddr = () =>
   useMock ? mockClient.mockFetchAddr(baseUrl) : realClient.fetchAddr(baseUrl);
-
-export * from './types';
-export * from './nftTypes';

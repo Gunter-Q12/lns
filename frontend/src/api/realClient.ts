@@ -1,4 +1,4 @@
-import { NftResponse, NftResponseSchema } from './nftTypes';
+import { NftResponse, NftResponseSchema } from '@/types/nft';
 
 export async function fetchNft(baseUrl: string = '/api'): Promise<NftResponse> {
   const response = await fetch(`${baseUrl}/nft`);

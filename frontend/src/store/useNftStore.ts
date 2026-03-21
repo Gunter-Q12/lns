@@ -1,44 +1,14 @@
 import { create } from 'zustand';
 import { RestructuredNft, restructureNft } from './transformers/nftTransformer';
-import { fetchNft } from '../api';
 
-// TODO: move this Enum somewhere
-export enum Hook {
-  IpPrerouting = "ip_prerouting",
-}
-
-// TODO: this type is used everywhere, where can we put it?
-export type Node = {
-  data: {
-    id: string;
-    name?: string;
-    parent?: string;
-    matcher?: string;
-    action?: string;
-    [key: string]: any;
-  };
-  position?: {
-    x: number;
-    y: number;
-  }
-}
-
-// TODO: move with Node
-export type Edge = {
-  id: string;
-  source: string;
-  target: string;
-}
-
-export type Graph = Array<Node|Edge>
-
-type Packet = {
-}
+import { Graph } from '@/types/graph';
+import { Packet, Change } from '@/types/packet';
+import { Hook, NftResponse } from '@/types/nft';
 
 type NftActions = {
-  loadNftData: () => Promise<void>;
+  loadNftData: (data: NftResponse) => void;
   getSubgraph: (hook: Hook) => Graph;
-  tracePacket: (packet: Packet) => [Packet, Graph];
+  tracePacket: (packet: Packet) => [Packet, Change[]];
 }
 
 type NftStore = {
@@ -49,26 +19,18 @@ type NftStore = {
 const useNftStore = create<NftStore>((set) => ({
   data: new Map(),
   actions: {
-    loadNftData: async () => {
-      try {
-        const rawData = await fetchNft();
-        const structuredData = restructureNft(rawData);
-        set({ data: structuredData });
-      } catch (error) {
-        console.error('Failed to load NFT data:', error);
-      }
-    },
+    loadNftData: (data) => set({ data: restructureNft(data) }),
     getSubgraph: (_: Hook): Graph => {
       return [
         { data: { id: 'stub-node-1', name: 'Stub entry' } },
         { data: { id: 'stub-node-2', name: 'Stub exit', parent: 'stub-node-1' } }
       ];
     },
-    tracePacket: (packet: Packet): [Packet, Graph] => {
-      const nodes = [
-        { data: { id: 'trace-1', name: 'Filter Hit' } }
+    tracePacket: (packet: Packet): [Packet, Change[]] => {
+      const changes = [
+        { hook: Hook.IpPrerouting, id: 'trace-1', decision: "Drop" }
       ];
-      return [packet, nodes];
+      return [packet, changes];
     }
   }
 }));

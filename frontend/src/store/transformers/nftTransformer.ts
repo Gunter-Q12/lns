@@ -1,4 +1,4 @@
-import { NftResponse, ChainDef, RuleDef } from '../nftTypes';
+import { NftResponse, ChainDef, RuleDef } from '../../api/nftTypes';
 
 /**
  * Maps represented as follows:

@@ -12,29 +12,38 @@ import { BreadcrumbSection } from './components/BreadcrumbSection';
 import { useGraphNavigation } from './hooks/useGraphNavigation';
 import { useGraphHighlight } from './hooks/useGraphHighlight';
 import { useGraphInteraction } from './hooks/useGraphInteraction';
-import { api, SubgraphNode, Change, TraceRequest } from '@/api';
+import { fetchNft } from '@/api';
+import { useNftActions } from './store/useNftStore';
 import { customStylesheet } from '@/config/graph-styles';
 import './App.css';
+import { Graph } from '@/types/graph';
+import { Hook } from '@/types/nft';
+import { Change, Packet } from '@/types/packet';
 
 // Optional: specific overrides if needed, otherwise GraphCanvas provides defaults
 // Styles moved to src/config/graph-styles.ts
 
 function App() {
   const [cy, setCy] = useState<cytoscape.Core | null>(null);
-  const [subgraphs, setSubgraphs] = useState<SubgraphNode[]>([]);
+  const [subgraphs, setSubgraphs] = useState<Graph>([]);
   const [changes, setChanges] = useState<Change[]>([]);
+  const { loadNftData, getSubgraph, tracePacket } = useNftActions();
 
   useEffect(() => {
-    const fetchSubgraphs = async () => {
+    const fetchData = async () => {
       try {
-        const data = await api.getSubgraphs();
-        setSubgraphs(data);
+        const nftResponse = await fetchNft();
+        loadNftData(nftResponse);
+
+        // Use getSubgraph with current Hook
+        const graph = getSubgraph(Hook.IpPrerouting);
+        setSubgraphs(graph);
       } catch (error) {
-        console.error("Failed to load subgraphs:", error);
+        console.error("Failed to load data:", error);
       }
     };
-    fetchSubgraphs();
-  }, []);
+    fetchData();
+  }, [loadNftData, getSubgraph]);
 
   const {
     elements,
@@ -46,11 +55,11 @@ function App() {
   const currentView = breadcrumbs[breadcrumbs.length - 1].nodeId;
   const shouldRunLayout = breadcrumbs.length > 1;
 
-  const handleTrace = async (formData: TraceRequest) => {
+  const handleTrace = async (formData: any) => {
     console.log("Tracing with data:", formData);
     try {
       setChanges([]); // Clear previous results
-      const results = await api.tracePacket(formData);
+      const [_, results] = tracePacket(formData as Packet);
       setChanges(results);
     } catch (error) {
       console.error("Failed to trace packet:", error);
