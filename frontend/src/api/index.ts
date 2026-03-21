@@ -1,14 +1,19 @@
-import { ApiClient } from './types';
-import { mockApiClient } from './mockClient';
-import { createRealApiClient } from './realClient';
+import * as mockClient from './mockClient';
+import * as realClient from './realClient';
 
 // Determine which client to use based on environment variable
-// You can set VITE_USE_MOCK_API=true in .env to force mock mode
 const useMock = import.meta.env.VITE_USE_MOCK_API === 'true' || import.meta.env.DEV;
 
-export const api: ApiClient = useMock
-  ? mockApiClient
-  : createRealApiClient(import.meta.env.VITE_API_Base_URL || '/api');
+const baseUrl = import.meta.env.VITE_API_Base_URL || '/api';
+
+export const fetchNft = () =>
+  useMock ? mockClient.mockFetchNft(baseUrl) : realClient.fetchNft(baseUrl);
+
+export const fetchRoute = () =>
+  useMock ? mockClient.mockFetchRoute(baseUrl) : realClient.fetchRoute(baseUrl);
+
+export const fetchAddr = () =>
+  useMock ? mockClient.mockFetchAddr(baseUrl) : realClient.fetchAddr(baseUrl);
 
 export * from './types';
 export * from './nftTypes';
