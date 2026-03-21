@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { RestructuredNft, restructureNft } from '../api/transformers/nftTransformer';
+import { RestructuredNft, restructureNft } from './transformers/nftTransformer';
+import { fetchNft } from '../api';
 
 // TODO: move this Enum somewhere
 export enum Hook {
@@ -7,7 +8,7 @@ export enum Hook {
 }
 
 // TODO: this type is used everywhere, where can we put it?
-export interface Node {
+export type Node = {
   data: {
     id: string;
     name?: string;
@@ -23,7 +24,7 @@ export interface Node {
 }
 
 // TODO: move with Node
-export interface Edge {
+export type Edge = {
   id: string;
   source: string;
   target: string;
@@ -31,16 +32,16 @@ export interface Edge {
 
 export type Graph = Array<Node|Edge>
 
-interface Packet {
+type Packet = {
 }
 
-interface NftActions {
-  setNftData: (data: RestructuredNft) => void;
+type NftActions = {
+  loadNftData: () => Promise<void>;
   getSubgraph: (hook: Hook) => Graph;
   tracePacket: (packet: Packet) => [Packet, Graph];
 }
 
-interface NftStore {
+type NftStore = {
   data: RestructuredNft;
   actions: NftActions
 }
@@ -48,7 +49,15 @@ interface NftStore {
 const useNftStore = create<NftStore>((set) => ({
   data: new Map(),
   actions: {
-    setNftData: (data) => set({ data: data }),
+    loadNftData: async () => {
+      try {
+        const rawData = await fetchNft();
+        const structuredData = restructureNft(rawData);
+        set({ data: structuredData });
+      } catch (error) {
+        console.error('Failed to load NFT data:', error);
+      }
+    },
     getSubgraph: (_: Hook): Graph => {
       return [
         { data: { id: 'stub-node-1', name: 'Stub entry' } },
