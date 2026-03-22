@@ -11,12 +11,12 @@ import { ViewElement } from '@/types/view';
 
 export interface BreadcrumbSectionProps {
   view: ViewElement[];
-  onReset: () => void;
+  setView: (view: ViewElement[]) => void;
 }
 
 export function BreadcrumbSection({
   view,
-  onReset
+  setView
 }: BreadcrumbSectionProps) {
   console.log("view", view)
   console.log("history", window.history)
@@ -26,24 +26,23 @@ export function BreadcrumbSection({
         <BreadcrumbList>
           {view.map((element, index) => {
             const isLast = index === view.length - 1;
+            const emptyItem = <BreadcrumbPage>{element.label}</BreadcrumbPage>
+            const linkItem = <BreadcrumbLink
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                const nextView = view.slice(0, index + 1);
+                window.history.pushState(nextView, '', `${element.id}`);
+                setView(nextView);
+              }}
+            >
+              {element.label}
+            </BreadcrumbLink>
+
             return (
               <Fragment key={index}>
                 <BreadcrumbItem>
-                  {isLast ? (
-                    <BreadcrumbPage>{element.label}</BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();  // TODO: maybe we actually want default
-                        if (element.label === 'Overview') {
-                          onReset();
-                        }
-                      }}
-                    >
-                      {element.label}
-                    </BreadcrumbLink>
-                  )}
+                  {isLast ? emptyItem : linkItem}
                 </BreadcrumbItem>
                 {!isLast && <BreadcrumbSeparator />}
               </Fragment>

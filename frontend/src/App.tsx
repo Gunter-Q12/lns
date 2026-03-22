@@ -202,7 +202,7 @@ function App() {
           <ResizableHandle withHandle />
 
           <ResizablePanel defaultSize={75} className="relative bg-muted/20 flex flex-col">
-            <BreadcrumbSection view={view} onReset={resetView} />
+            <BreadcrumbSection view={view} setView={setView} />
             <div className="flex-1 min-h-0">
               <GraphCanvas elements={graph} stylesheet={customStylesheet} cy={setCy} />
             </div>
