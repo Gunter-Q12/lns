@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { ElementDefinition } from 'cytoscape';
 import elementsData from '@/data/elements.json';
-import { SubgraphNode } from '@/api/types';
 
 const initialElements = elementsData as unknown as ElementDefinition[];
 

@@ -8,15 +8,12 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { TraceRequest } from "@/api"
+import { Packet } from "@/types/packet"
 
-interface InputPanelProps {
-  onTrace: (data: TraceRequest) => void;
-}
 
-function InputPanel({ onTrace }: InputPanelProps) {
+function InputPanel(tracePacket: (packet: Packet) => void) {
   const [protocol, setProtocol] = useState<string>("arp")
-  const [formData, setFormData] = useState<Omit<TraceRequest, 'protocol'>>({
+  const [packet, setPacket] = useState<Packet>({
     senderMac: "",
     targetMac: "",
     srcPort: "",
@@ -26,15 +23,10 @@ function InputPanel({ onTrace }: InputPanelProps) {
   });
 
   const handleInputChange = (key: string, value: string) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setPacket(prev => ({ ...prev, [key]: value }));
   };
 
-  const handleTrace = () => {
-    onTrace({
-      protocol,
-      ...formData
-    });
-  };
+  const onTrace = () => tracePacket(packet);
 
   return (
     <div className="flex h-full flex-col p-4">
@@ -65,7 +57,7 @@ function InputPanel({ onTrace }: InputPanelProps) {
               <Input
                 type="text"
                 placeholder="00:00:00:00:00:00"
-                value={formData.senderMac}
+                value={packet.senderMac}
                 onChange={(e) => handleInputChange("senderMac", e.target.value)}
               />
             </div>
@@ -76,7 +68,7 @@ function InputPanel({ onTrace }: InputPanelProps) {
               <Input
                 type="text"
                 placeholder="00:00:00:00:00:00"
-                value={formData.targetMac}
+                value={packet.targetMac}
                 onChange={(e) => handleInputChange("targetMac", e.target.value)}
               />
             </div>
@@ -93,7 +85,7 @@ function InputPanel({ onTrace }: InputPanelProps) {
                 <Input
                   type="number"
                   placeholder="80"
-                  value={formData.srcPort}
+                  value={packet.srcPort}
                   onChange={(e) => handleInputChange("srcPort", e.target.value)}
                 />
               </div>
@@ -104,7 +96,7 @@ function InputPanel({ onTrace }: InputPanelProps) {
                 <Input
                   type="number"
                   placeholder="443"
-                  value={formData.dstPort}
+                  value={packet.dstPort}
                   onChange={(e) => handleInputChange("dstPort", e.target.value)}
                 />
               </div>
@@ -116,7 +108,7 @@ function InputPanel({ onTrace }: InputPanelProps) {
               <Input
                 type="text"
                 placeholder="192.168.1.1"
-                value={formData.srcIp}
+                value={packet.srcIp}
                 onChange={(e) => handleInputChange("srcIp", e.target.value)}
               />
             </div>
@@ -127,7 +119,7 @@ function InputPanel({ onTrace }: InputPanelProps) {
               <Input
                 type="text"
                 placeholder="192.168.1.2"
-                value={formData.dstIp}
+                value={packet.dstIp}
                 onChange={(e) => handleInputChange("dstIp", e.target.value)}
               />
             </div>
@@ -136,7 +128,7 @@ function InputPanel({ onTrace }: InputPanelProps) {
       </div>
 
       <div className="mt-auto pt-4">
-        <Button className="w-full" onClick={handleTrace}>
+        <Button className="w-full" onClick={onTrace}>
           Trace
         </Button>
       </div>

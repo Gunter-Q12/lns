@@ -1,13 +1,13 @@
 import { create } from 'zustand';
-import { RestructuredNft, restructureNft } from './transformers/nftTransformer';
+import { ElementDefinition } from 'cytoscape';
 
-import { Graph } from '@/types/graph';
+import { RestructuredNft, restructureNft } from './transformers/nftTransformer';
 import { Packet, Change } from '@/types/packet';
-import { Hook, NftResponse } from '@/types/nft';
+import { NftResponse } from '@/types/nft';
 
 type NftActions = {
-  loadNftData: (data: NftResponse) => void;
-  getSubgraph: (hook: Hook) => Graph;
+  setNftData: (data: NftResponse) => void;
+  getGraph: (hook: string) => ElementDefinition[];
   tracePacket: (packet: Packet) => [Packet, Change[]];
 }
 
@@ -19,16 +19,17 @@ type NftStore = {
 const useNftStore = create<NftStore>((set) => ({
   data: new Map(),
   actions: {
-    loadNftData: (data) => set({ data: restructureNft(data) }),
-    getSubgraph: (_: Hook): Graph => {
-      return [
+    setNftData: (data) => set({ data: restructureNft(data) }),
+    getGraph: (_: string): ElementDefinition[] => {
+    return [
         { data: { id: 'stub-node-1', name: 'Stub entry' } },
-        { data: { id: 'stub-node-2', name: 'Stub exit', parent: 'stub-node-1' } }
-      ];
+        { data: { id: 'stub-node-2', name: 'Stub entry II' } },
+        { data: { source: 'stub-node-1', target: 'stub-node-2' } },
+    ]
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       const changes = [
-        { hook: Hook.IpPrerouting, id: 'trace-1', decision: "Drop" }
+        { namespace: "host", hook: "ip_prerouting", id: 'trace-1', decision: "Drop" }
       ];
       return [packet, changes];
     }
