@@ -32,23 +32,45 @@ function App() {
   const { setNftData, getGraph, tracePacket } = useNftActions();
 
   function appendView(element: ViewElement) {
-    setView(prev => [...prev, element]);
+    setView(prev => {
+      const nextView = [...prev, element];
+      window.history.pushState(nextView, '', `${element.id}`);
+      return nextView;
+    });
   }
 
-  function popView() {
-    setView(prev => prev.slice(0, -1));
+  function resetView(pushHistory: boolean = true) {
+    setView(_ => {
+      const initialView = [{id: "host", label: "Host"}];
+      if (pushHistory) {
+        window.history.pushState(initialView, '', `host`);
+      } else {
+        window.history.replaceState(initialView, '', `host`);
+      }
+      return initialView;
+    });
   }
 
-  function resetView() {
-    setView([{id: "host", label: "Host"}]);
-  }
+  // Popstate handler
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      setView(event.state);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+
 
   // Load data into zustand
   useEffect(() => {
     const fetchData = async () => {
         const nftResponse = await fetchNft();  // TODO: add some kind of retry or user-readable error
         setNftData(nftResponse);
-        setView([{id: "host", label: "Host"}])
+        resetView(false);
     };
     fetchData();
   }, []);
@@ -57,6 +79,8 @@ function App() {
   const initialElements = elementsData as unknown as ElementDefinition[];
   useEffect(() => {
     const currentViewId = view.at(-1)?.id || "";
+    console.log("CurrentViewId", currentViewId);
+    console.log("history", window.history.length)
     if (currentViewId === "host") {  // TODO: probaly should check agains a set of namespaces or sth
         setGraph(initialElements)
     } else {
@@ -111,8 +135,38 @@ function App() {
   // TODO: does it work automatically or not?
   useEffect(() => {
 
+
   }, [graph])
 
+
+  // Add interactions to graph
+  useEffect(() => {
+    if (!cy) return;
+
+    const handleTap = (evt: cytoscape.EventObject) => {
+      const node = evt.target;
+      const nodeId = node.id();
+      appendView({id: nodeId, label: nodeId})  // TODO: replace nodeID with label
+    };
+
+    const handleMouseOver = () => {
+      if (cy.container()) cy.container()!.style.cursor = 'pointer';
+    };
+
+    const handleMouseOut = () => {
+      if (cy.container()) cy.container()!.style.cursor = 'default';
+    };
+
+    cy.on('tap', 'node', handleTap);
+    cy.on('mouseover', 'node', handleMouseOver);
+    cy.on('mouseout', 'node', handleMouseOut);
+
+    return () => {
+      cy.removeListener('tap', 'node', handleTap);
+      cy.removeListener('mouseover', 'node', handleMouseOver);
+      cy.removeListener('mouseout', 'node', handleMouseOut);
+    };
+  }, [cy]);
 
   // useGraphInteraction({ cy, navigateToNode });
 
@@ -142,7 +196,7 @@ function App() {
       <main className="flex-1 min-h-0 min-w-0">
         <ResizablePanelGroup orientation="horizontal" className="h-full">
           <ResizablePanel defaultSize={25} minSize={15}>
-            <InputPanel onTrace={handleTrace} />
+            <InputPanel handleTrace={handleTrace} />
           </ResizablePanel>
 
           <ResizableHandle withHandle />

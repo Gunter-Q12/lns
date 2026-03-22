@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Change } from '@/api/types';
+import { Change } from '@/types/packet';
 import { cn } from "@/lib/utils";
 
 interface RoutePanelProps {
@@ -31,7 +31,7 @@ function RoutePanel({ changes }: RoutePanelProps) {
           <TableBody>
             {changes.map((change, i) => (
               <TableRow key={i}>
-                <TableCell className="font-medium">{change.change}</TableCell>
+                <TableCell className="font-medium">{change.decision}</TableCell>
                 <TableCell>
                   <span className={cn(
                     "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",

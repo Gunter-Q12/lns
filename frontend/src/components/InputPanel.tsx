@@ -10,8 +10,11 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Packet } from "@/types/packet"
 
+interface InputPanelProps {
+  handleTrace: (packet: Packet) => void
+}
 
-function InputPanel(tracePacket: (packet: Packet) => void) {
+function InputPanel({handleTrace}: InputPanelProps) {
   const [protocol, setProtocol] = useState<string>("arp")
   const [packet, setPacket] = useState<Packet>({
     senderMac: "",
@@ -26,7 +29,7 @@ function InputPanel(tracePacket: (packet: Packet) => void) {
     setPacket(prev => ({ ...prev, [key]: value }));
   };
 
-  const onTrace = () => tracePacket(packet);
+  const onTrace = () => handleTrace(packet);
 
   return (
     <div className="flex h-full flex-col p-4">

@@ -21,6 +21,7 @@ const useNftStore = create<NftStore>((set) => ({
   actions: {
     setNftData: (data) => set({ data: restructureNft(data) }),
     getGraph: (_: string): ElementDefinition[] => {
+      // TODO: implement
     return [
         { data: { id: 'stub-node-1', name: 'Stub entry' } },
         { data: { id: 'stub-node-2', name: 'Stub entry II' } },
