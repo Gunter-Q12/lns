@@ -79,8 +79,6 @@ function App() {
   const initialElements = elementsData as unknown as ElementDefinition[];
   useEffect(() => {
     const currentViewId = view.at(-1)?.id || "";
-    console.log("CurrentViewId", currentViewId);
-    console.log("history", window.history.length)
     if (currentViewId === "host") {  // TODO: probaly should check agains a set of namespaces or sth
         setGraph(initialElements)
     } else {
@@ -130,15 +128,6 @@ function App() {
     }
   }, [graph, changes])
 
-
-  // Rerender graph when changed
-  // TODO: does it work automatically or not?
-  useEffect(() => {
-
-
-  }, [graph])
-
-
   // Add interactions to graph
   useEffect(() => {
     if (!cy) return;
@@ -168,22 +157,23 @@ function App() {
     };
   }, [cy]);
 
-  // useGraphInteraction({ cy, navigateToNode });
-
 
   // TODO: this we need to add somewhere
-  // useEffect(() => {
-  //   if (cy && shouldRunLayout) {
-  //     // Run layout for new elements that don't have positions
-  //     const layout = cy.layout({
-  //       name: 'breadthfirst',
-  //       directed: true,
-  //       padding: 50,
-  //       spacingFactor: 1.5
-  //     } as any);
-  //     layout.run();
-  //   }
-  // }, [cy, elements, shouldRunLayout]);
+  useEffect(() => {
+    const currentViewId = view.at(-1)?.id || "";
+    console.log(currentViewId)
+    if (cy && currentViewId != "host") {  // TODO: probaly should check agains a set of namespaces or sth
+      const layout = cy.layout({
+        name: 'breadthfirst',
+        directed: true,
+        padding: 10,
+        spacingFactor: 1.5
+      } as any);
+      layout.run();
+    } else {
+      cy?.fit("", 10);
+    }
+  }, [graph]);
 
 
   function handleTrace(packet: Packet) {
