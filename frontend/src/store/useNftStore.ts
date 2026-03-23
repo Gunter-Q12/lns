@@ -30,7 +30,8 @@ const useNftStore = create<NftStore>((set) => ({
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       const changes = [
-        { namespace: "host", hook: "ip_prerouting", id: 'trace-1', decision: "Drop" }
+        { namespace: "host", hook: "ip_prerouting", id: 'stub-node-1', decision: "change" },
+        { namespace: "host", hook: "ip_prerouting", id: 'stub-node-2', decision: "drop" },
       ];
       return [packet, changes];
     }

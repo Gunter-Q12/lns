@@ -53,6 +53,7 @@ function App() {
 
   // Popstate handler
   useEffect(() => {
+    console.log("Popstate handler started");
     const handlePopState = (event: PopStateEvent) => {
       setView(event.state);
     };
@@ -67,6 +68,7 @@ function App() {
 
   // Load data into zustand
   useEffect(() => {
+    console.log("Load data into zustand started");
     const fetchData = async () => {
         const nftResponse = await fetchNft();  // TODO: add some kind of retry or user-readable error
         setNftData(nftResponse);
@@ -78,6 +80,7 @@ function App() {
   // Set graph based on view
   const initialElements = elementsData as unknown as ElementDefinition[];
   useEffect(() => {
+    console.log("Set graph based on view started");
     const currentViewId = view.at(-1)?.id || "";
     if (currentViewId === "host") {  // TODO: probaly should check agains a set of namespaces or sth
         setGraph(initialElements)
@@ -88,6 +91,7 @@ function App() {
 
   // Highlight nodes in graph
   useEffect(() => {
+    console.log("Highlight nodes in graph started", cy, changes, view);
     if (!cy) return;
 
     // Clear previous classes
@@ -130,6 +134,7 @@ function App() {
 
   // Add interactions to graph
   useEffect(() => {
+    console.log("Add interactions to graph started");
     if (!cy) return;
 
     const handleTap = (evt: cytoscape.EventObject) => {
@@ -161,7 +166,7 @@ function App() {
   // TODO: this we need to add somewhere
   useEffect(() => {
     const currentViewId = view.at(-1)?.id || "";
-    console.log(currentViewId)
+    console.log("Layout effect started", currentViewId);
     if (cy && currentViewId != "host") {  // TODO: probaly should check agains a set of namespaces or sth
       const layout = cy.layout({
         name: 'breadthfirst',
@@ -201,7 +206,7 @@ function App() {
           <ResizableHandle withHandle />
 
           <ResizablePanel defaultSize={25} minSize={15}>
-            <RoutePanel changes={changes} />
+            <RoutePanel changes={changes} setView={setView} />
           </ResizablePanel>
         </ResizablePanelGroup>
       </main>

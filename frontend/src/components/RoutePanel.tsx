@@ -8,12 +8,14 @@ import {
 } from "@/components/ui/table"
 import { Change } from '@/types/packet';
 import { cn } from "@/lib/utils";
+import { ViewElement } from "@/types/view";
 
 interface RoutePanelProps {
   changes: Change[];
+  setView: (view: ViewElement[]) => void;
 }
 
-function RoutePanel({ changes }: RoutePanelProps) {
+function RoutePanel({ changes, setView }: RoutePanelProps) {
   return (
     <div className="flex h-full flex-col p-4 w-full overflow-hidden">
       <h2 className="text-lg font-semibold tracking-tight">Route</h2>
@@ -30,8 +32,22 @@ function RoutePanel({ changes }: RoutePanelProps) {
           </TableHeader>
           <TableBody>
             {changes.map((change, i) => (
-              <TableRow key={i}>
-                <TableCell className="font-medium">{change.decision}</TableCell>
+              <TableRow
+                key={i}
+                className="cursor-pointer"
+                onClick={() => {
+                  const newView = [
+                    { id: change.namespace, label: change.namespace },
+                    { id: change.hook, label: change.hook },
+                  ];
+                  setView(newView)
+                  window.history.pushState(newView, '', change.decision);
+                }
+                }
+              >
+                <TableCell className="font-medium">
+                  {change.decision}
+                </TableCell>
                 <TableCell>
                   <span className={cn(
                     "inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset",
