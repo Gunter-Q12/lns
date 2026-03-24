@@ -91,16 +91,22 @@ function App() {
     console.log("Highlight nodes in graph started", cy, changes, view);
     if (!cy) return;
 
+    const currentViewId = view.at(-1)?.id;
+
     // Clear previous classes
     cy.elements().removeClass('decision-drop decision-accept decision-change decision-other path-highlight');
 
     // Identify and highlight nodes based on changes
     const highlightedNodes: cytoscape.CollectionReturnValue[] = [];
 
+    const isHostView = changes.at(0)?.namespace === currentViewId;
+    if (isHostView) {
+      highlightedNodes.push(cy.getElementById("ingress"))
+    }
+
     changes.forEach(change => {
       let targetNode: cytoscape.CollectionReturnValue | null = null;
 
-    const currentViewId = view.at(-1)?.id;
       if (change.namespace === currentViewId) {
         targetNode = cy.getElementById(change.hook);
       } else if (change.hook === currentViewId) {
@@ -112,6 +118,10 @@ function App() {
         highlightedNodes.push(targetNode);
       }
     });
+
+    if (isHostView) {
+      highlightedNodes.push(cy.getElementById("egress"))
+    }
 
     // Highlight paths between consecutive highlighted nodes
     if (highlightedNodes.length > 1) {
