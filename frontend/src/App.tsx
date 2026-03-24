@@ -37,7 +37,7 @@ function App() {
   }
 
   function resetView(pushHistory: boolean = true) {
-    setView(_ => {
+    setView(() => {
       const initialView = [{id: "host", label: "Host"}];
       if (pushHistory) {
         window.history.pushState(initialView, '', `host`);
@@ -99,7 +99,7 @@ function App() {
     // Identify and highlight nodes based on changes
     const highlightedNodes: cytoscape.CollectionReturnValue[] = [];
 
-    const isHostView = changes.at(0)?.namespace === currentViewId;
+    const isHostView = changes.at(0)?.namespace === currentViewId && highlightedNodes.length > 0;
     if (isHostView) {
       highlightedNodes.push(cy.getElementById("ingress"))
     }

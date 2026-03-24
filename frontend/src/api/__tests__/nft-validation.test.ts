@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { NftResponseSchema } from '../nftTypes';
-import longChainData from './fixtures/long_chain.json';
+import { NftResponseSchema } from '@/types/nft';
+import longChainData from './fixtures/nft/long_chain.json';
 
 describe('NftResponseSchema Validation', () => {
   it('should successfully parse long_chain.json', () => {
