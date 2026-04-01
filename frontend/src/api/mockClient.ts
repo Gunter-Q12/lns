@@ -1,7 +1,7 @@
 import { NftResponse, NftResponseSchema } from '@/types/nft';
 
 export async function mockFetchNft(_baseUrl: string = '/api'): Promise<NftResponse> {
-  const data = await import('./__tests__/fixtures/long_chain.json');
+  const data = await import('./__tests__/fixtures/nft/long_chain.json');
   return NftResponseSchema.parse(data);
 }
 
