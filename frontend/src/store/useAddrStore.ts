@@ -4,8 +4,8 @@ import { AddrResponse } from '@/types/addr';
 import { Packet, Change } from '@/types/packet';
 
 type AddrActions = {
-  setAddrData: (data: AddrResponse) => void;
-  getGraph: () => ElementDefinition[];
+  setData: (data: AddrResponse) => void;
+  getGraph: (hook: string) => ElementDefinition[];
   tracePacket: (packet: Packet) => [Packet, Change[]];
 }
 
@@ -17,8 +17,8 @@ type AddrStore = {
 const useAddrStore = create<AddrStore>((set) => ({
   data: [],
   actions: {
-    setAddrData: (data) => set({ data }),
-    getGraph: (): ElementDefinition[] => {
+    setData: (data) => set({ data }),
+    getGraph: (_: string): ElementDefinition[] => {
       // TODO: implement
       return [
         { data: { id: 'addr-stub-1', name: 'Addr Stub' } },

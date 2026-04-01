@@ -6,7 +6,7 @@ import { Packet, Change } from '@/types/packet';
 import { NftResponse } from '@/types/nft';
 
 type NftActions = {
-  setNftData: (data: NftResponse) => void;
+  setData: (data: NftResponse) => void;
   getGraph: (hook: string) => ElementDefinition[];
   tracePacket: (packet: Packet) => [Packet, Change[]];
 }
@@ -19,7 +19,7 @@ type NftStore = {
 const useNftStore = create<NftStore>((set) => ({
   data: new Map(),
   actions: {
-    setNftData: (data) => set({ data: restructureNft(data) }),
+    setData: (data) => set({ data: restructureNft(data) }),
     getGraph: (_: string): ElementDefinition[] => {
       // TODO: implement
     return [

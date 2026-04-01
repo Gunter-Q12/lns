@@ -27,8 +27,8 @@ function App() {
   const [graph, setGraph] = useState<ElementDefinition[]>( [] );
   const [view, setView] = useState<ViewElement[]>([]);
   const [changes, setChanges] = useState<Change[]>([]);
-  const { setNftData, getGraph, tracePacket } = useNftActions();
-  const { setAddrData } = useAddrActions();
+  const { setData: setNftData, getGraph: getNftGraph, tracePacket: traceNftPacket } = useNftActions();
+  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket } = useAddrActions();
 
   function appendView(element: ViewElement) {
     setView(prev => {
@@ -87,8 +87,10 @@ function App() {
     const currentViewId = view.at(-1)?.id || "";
     if (currentViewId === "host") {  // TODO: probaly should check agains a set of namespaces or sth
         setGraph(initialElements)
+    } else if (currentViewId === "ingress" || currentViewId === "egress") {
+      setGraph(getAddrGraph(currentViewId))
     } else {
-      setGraph(getGraph(currentViewId))
+      setGraph(getNftGraph(currentViewId))
     }
   }, [view])
 
@@ -195,7 +197,7 @@ function App() {
 
 
   function handleTrace(packet: Packet) {
-      const [_, changes] = tracePacket(packet);
+      const [_, changes] = traceNftPacket(packet);
       setChanges(changes);
   }
 
