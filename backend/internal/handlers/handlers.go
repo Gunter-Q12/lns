@@ -31,6 +31,12 @@ func (h *Handlers) Get(c *gin.Context) {
 	case "/route":
 		cmd = "ip"
 		args = []string{"--json", "route", "show", "table", "all"}
+	case "/rule4":
+		cmd = "ip"
+		args = []string{"--json", "rule"}
+	case "/rule6":
+		cmd = "ip"
+		args = []string{"-6", "--json", "rule"}
 	case "/addr":
 		cmd = "ip"
 		args = []string{"--json", "addr"}
@@ -46,5 +52,5 @@ func (h *Handlers) Get(c *gin.Context) {
 		return
 	}
 
-	c.Data(http.StatusOK, "application/json", []byte(info))
+	c.Data(http.StatusOK, "application/json", info)
 }
