@@ -9,8 +9,9 @@ import { GraphCanvas } from './components/GraphCanvas';
 import InputPanel from './components/InputPanel';
 import RoutePanel from './components/RoutePanel';
 import { BreadcrumbSection } from './components/BreadcrumbSection';
-import { fetchNft } from '@/api';
+import { fetchNft, fetchAddr } from '@/api';
 import { useNftActions } from './store/useNftStore';
+import { useAddrActions } from './store/useAddrStore';
 import { customStylesheet } from '@/config/graph-styles';
 import './App.css';
 import { Change, Packet } from '@/types/packet';
@@ -27,6 +28,7 @@ function App() {
   const [view, setView] = useState<ViewElement[]>([]);
   const [changes, setChanges] = useState<Change[]>([]);
   const { setNftData, getGraph, tracePacket } = useNftActions();
+  const { setAddrData } = useAddrActions();
 
   function appendView(element: ViewElement) {
     setView(prev => {
@@ -67,8 +69,12 @@ function App() {
   useEffect(() => {
     console.log("Load data into zustand started");
     const fetchData = async () => {
-        const nftResponse = await fetchNft();  // TODO: add some kind of retry or user-readable error
+        const [nftResponse, addrResponse] = await Promise.all([
+            fetchNft(),
+            fetchAddr()
+        ]);
         setNftData(nftResponse);
+        setAddrData(addrResponse);
         resetView(false);
     };
     fetchData();

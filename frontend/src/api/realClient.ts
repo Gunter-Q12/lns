@@ -1,4 +1,5 @@
 import { NftResponse, NftResponseSchema } from '@/types/nft';
+import { AddrResponse, AddrResponseSchema } from '@/types/addr';
 
 export async function fetchNft(baseUrl: string = '/api'): Promise<NftResponse> {
   const response = await fetch(`${baseUrl}/nft`);
@@ -17,10 +18,11 @@ export async function fetchRoute(baseUrl: string = '/api'): Promise<any> {
   return response.json();
 }
 
-export async function fetchAddr(baseUrl: string = '/api'): Promise<any> {
+export async function fetchAddr(baseUrl: string = '/api'): Promise<AddrResponse> {
   const response = await fetch(`${baseUrl}/addr`);
   if (!response.ok) {
     throw new Error(`Failed to fetch addr: ${response.statusText}`);
   }
-  return response.json();
+  const data = await response.json();
+  return AddrResponseSchema.parse(data);
 }

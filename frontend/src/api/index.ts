@@ -1,3 +1,4 @@
+import { AddrResponse } from '@/types/addr';
 import * as mockClient from './mockClient';
 import * as realClient from './realClient';
 
@@ -12,5 +13,5 @@ export const fetchNft = () =>
 export const fetchRoute = () =>
   useMock ? mockClient.mockFetchRoute(baseUrl) : realClient.fetchRoute(baseUrl);
 
-export const fetchAddr = () =>
+export const fetchAddr = (): Promise<AddrResponse> =>
   useMock ? mockClient.mockFetchAddr(baseUrl) : realClient.fetchAddr(baseUrl);
