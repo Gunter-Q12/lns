@@ -93,6 +93,8 @@ function App() {
         setGraph(initialElements)
     } else if (currentViewId === "ingress" || currentViewId === "egress") {
       setGraph(getAddrGraph(currentViewId))
+    } else if (currentViewId === "ip_routing_decision" || currentViewId === "ip_routing_decision_local") {
+      setGraph(getIpGraph(currentViewId))
     } else {
       setGraph(getNftGraph(currentViewId))
     }
