@@ -1,10 +1,16 @@
 import { useState, useEffect } from 'react';
 import type cytoscape from 'cytoscape';
+import cytoscapeInstance from 'cytoscape';
+import coseBilkent from 'cytoscape-cose-bilkent';
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
+
+// Register the cose-bilkent layout extension
+cytoscapeInstance.use(coseBilkent);
+
 import { GraphCanvas } from './components/GraphCanvas';
 import InputPanel from './components/InputPanel';
 import RoutePanel from './components/RoutePanel';
@@ -190,10 +196,11 @@ function App() {
     console.log("Layout effect started", currentViewId);
     if (cy && currentViewId != "host") {  // TODO: probaly should check agains a set of namespaces or sth
       const layout = cy.layout({
-        name: 'breadthfirst',
-        directed: true,
-        padding: 10,
-        spacingFactor: 1.5
+        name: 'cose-bilkent',
+        animate: false,
+        randomize: false,
+        nodeDimensionsIncludeLabels: true,
+        padding: 50,
       } as any);
       layout.run();
     } else {

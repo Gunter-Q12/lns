@@ -19,7 +19,7 @@ export const ipToGraph = (data: IpResponse): ElementDefinition[] => {
     const ruleId = `rule-${rule.priority}-${index}`;
     const src = rule.src;
     const dst = rule.dst ? ` to ${rule.dst}` : '';
-    const name = `Rule: ${src}${dst} (prio: ${rule.priority})`;
+    const name = `${src}${dst}`;
 
     elements.push({
       data: {
@@ -48,7 +48,7 @@ export const ipToGraph = (data: IpResponse): ElementDefinition[] => {
     elements.push({
       data: {
         id: `table-${tableName}`,
-        name: `Table: ${tableName}`,
+        name: `${tableName}`,
         type: 'table'
       }
     });
