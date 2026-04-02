@@ -9,9 +9,10 @@ import { GraphCanvas } from './components/GraphCanvas';
 import InputPanel from './components/InputPanel';
 import RoutePanel from './components/RoutePanel';
 import { BreadcrumbSection } from './components/BreadcrumbSection';
-import { fetchNft, fetchAddr } from '@/api';
+import { fetchNft, fetchAddr, fetchRoute } from '@/api';
 import { useNftActions } from './store/useNftStore';
 import { useAddrActions } from './store/useAddrStore';
+import { useIpActions } from './store/useIpStore';
 import { customStylesheet } from '@/config/graph-styles';
 import './App.css';
 import { Change, Packet } from '@/types/packet';
@@ -29,6 +30,7 @@ function App() {
   const [changes, setChanges] = useState<Change[]>([]);
   const { setData: setNftData, getGraph: getNftGraph, tracePacket: traceNftPacket } = useNftActions();
   const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket } = useAddrActions();
+  const { setData: setIpData, getGraph: getIpGraph, tracePacket: traceIpPacket } = useIpActions();
 
   function appendView(element: ViewElement) {
     setView(prev => {
@@ -69,12 +71,14 @@ function App() {
   useEffect(() => {
     console.log("Load data into zustand started");
     const fetchData = async () => {
-        const [nftResponse, addrResponse] = await Promise.all([
+        const [nftResponse, addrResponse, ipResponse] = await Promise.all([
             fetchNft(),
-            fetchAddr()
+            fetchAddr(),
+            fetchRoute()
         ]);
         setNftData(nftResponse);
         setAddrData(addrResponse);
+        setIpData(ipResponse);
         resetView(false);
     };
     fetchData();
