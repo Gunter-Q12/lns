@@ -1,0 +1,8 @@
+
+[
+  { "data": { "id": "1_chain", "name": "main_chain" } },
+  { "data": { "id": "2_chain", "name": "check_chain" } },
+  { "data": { "id": "3_rule", "name": "rule", "parent": "1_chain", "matcher": "", "action": "Jump " } }
+  { "data": { "id": "4_rule", "name": "rule", "parent": "1_chain", "matcher": "arp.operation == request", "action": "Accept" } },
+  { "data": { "id": "5_rule", "name": "rule", "parent": "5_chain", "matcher": "arp.operation == reply", "action": "Accept" } }
+]

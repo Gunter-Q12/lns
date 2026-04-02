@@ -1,0 +1,5 @@
+[
+  { "data": { "id": "5_chain", "name": "arp_rules" } },
+  { "data": { "id": "2_rule", "name": "rule", "parent": "5_chain", "matcher": "arp.operation == request", "action": "Accept" } },
+  { "data": { "id": "3_rule", "name": "rule", "parent": "5_chain", "matcher": "arp.operation == reply", "action": "Accept" } }
+]

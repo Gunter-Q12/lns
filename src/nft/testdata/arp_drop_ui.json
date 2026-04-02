@@ -1,0 +1,4 @@
+[
+  { "data": { "id": "1_chain", "name": "input" } },
+  { "data": { "id": "2_rule", "name": "rule", "parent": "1_chain", "matcher": "arp.plen == 1", "action": "Drop" } }
+]
