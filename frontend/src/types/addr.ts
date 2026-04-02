@@ -18,6 +18,7 @@ export const AddrItemSchema = z.object({
   flags: z.array(z.string()),
   mtu: z.number(),
   qdisc: z.string(),
+  master: z.string(),
   operstate: z.string(),
   group: z.string(),
   txqlen: z.number().optional(),
@@ -26,6 +27,7 @@ export const AddrItemSchema = z.object({
   broadcast: z.string().optional(),
   link_index: z.number().optional(),
   link_netnsid: z.number().optional(),
+  master: z.string().optional(),
   addr_info: z.array(AddrInfoSchema),
 });
 export type AddrItem = z.infer<typeof AddrItemSchema>;

@@ -38,5 +38,25 @@ export const addrToGraph = (data: AddrResponse): ElementDefinition[] => {
     });
   });
 
+  // 3. Add edges for master-slave relationships
+  data.forEach((item) => {
+    if (item.master) {
+      const sourceId = `interface-${item.ifindex}`;
+      // Find the master interface by ifname
+      const masterItem = data.find(m => m.ifname === item.master);
+      if (masterItem) {
+        const targetId = `interface-${masterItem.ifindex}`;
+        elements.push({
+          data: {
+            id: `edge-${sourceId}-master-${targetId}`,
+            source: sourceId,
+            target: targetId,
+            type: 'master-slave'
+          }
+        });
+      }
+    }
+  });
+
   return elements;
 };
