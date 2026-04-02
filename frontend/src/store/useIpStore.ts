@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ElementDefinition } from 'cytoscape';
 import { IpResponse } from '@/types/ip';
 import { Packet, Change } from '@/types/packet';
+import { ipToGraph } from './transformers/ipToGraph';
 
 type IpActions = {
   setData: (data: IpResponse) => void;
@@ -14,7 +15,7 @@ type IpStore = {
   actions: IpActions;
 }
 
-const useIpStore = create<IpStore>((set) => ({
+const useIpStore = create<IpStore>((set, get) => ({
   data: {
     routes: [],
     rules: [],
@@ -22,12 +23,7 @@ const useIpStore = create<IpStore>((set) => ({
   actions: {
     setData: (data) => set({ data }),
     getGraph: (_: string): ElementDefinition[] => {
-      // TODO: implement
-      return [
-        { data: { id: 'stub-node-ip-1', name: 'Stub IP entry' } },
-        { data: { id: 'stub-node-ip-2', name: 'Stub IP entry II' } },
-        { data: { source: 'stub-node-ip-1', target: 'stub-node-ip-2' } },
-      ];
+        return ipToGraph(get().data);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       const changes = [
