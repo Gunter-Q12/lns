@@ -15,5 +15,27 @@ export const RouteItemSchema = z.object({
 });
 export type RouteItem = z.infer<typeof RouteItemSchema>;
 
+export const RuleItemSchema = z.object({
+  priority: z.number(),
+  src: z.string(),
+  dst: z.string().optional(),
+  table: z.string(),
+});
+export type RuleItem = z.infer<typeof RuleItemSchema>;
+
+
 export const RouteResponseSchema = z.array(RouteItemSchema);
 export type RouteResponse = z.infer<typeof RouteResponseSchema>;
+
+export const RuleResponseSchema = z.array(RuleItemSchema);
+export type RuleResponse = z.infer<typeof RuleResponseSchema>;
+
+export const RouteAndRuleResponseSchema = z.object({
+  routes: RouteResponseSchema,
+  rules: RuleResponseSchema,
+});
+
+export type IpResponse = {
+  routes: RouteResponse;
+  rules: RuleResponse;
+};

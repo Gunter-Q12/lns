@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { RouteResponseSchema } from '@/types/route';
+import { RouteResponseSchema } from '@/types/ip';
 import routeData from './fixtures/route/route.json';
 
 describe('RouteResponseSchema Validation', () => {

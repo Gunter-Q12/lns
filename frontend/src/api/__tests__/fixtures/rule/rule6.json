@@ -1,0 +1,23 @@
+[
+    {
+        "priority": 0,
+        "src": "all",
+        "table": "local"
+    },
+    {
+        "priority": 32764,
+        "src": "all",
+        "dst": "2001:4860:4860::8888",
+        "table": "ipv6_demo"
+    },
+    {
+        "priority": 32765,
+        "src": "2001:db8::1",
+        "table": "ipv6_demo"
+    },
+    {
+        "priority": 32766,
+        "src": "all",
+        "table": "main"
+    }
+]

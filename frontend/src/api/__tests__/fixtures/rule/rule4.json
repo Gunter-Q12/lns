@@ -1,0 +1,28 @@
+[
+    {
+        "priority": 0,
+        "src": "all",
+        "table": "local"
+    },
+    {
+        "priority": 32764,
+        "src": "all",
+        "dst": "1.1.1.1",
+        "table": "ipv4_demo"
+    },
+    {
+        "priority": 32765,
+        "src": "172.17.0.2",
+        "table": "ipv4_demo"
+    },
+    {
+        "priority": 32766,
+        "src": "all",
+        "table": "main"
+    },
+    {
+        "priority": 32767,
+        "src": "all",
+        "table": "default"
+    }
+]

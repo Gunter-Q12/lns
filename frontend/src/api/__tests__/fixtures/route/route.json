@@ -3,6 +3,20 @@
         "dst": "default",
         "gateway": "172.17.0.1",
         "dev": "eth0",
+        "table": "ipv4_demo",
+        "flags": []
+    },
+    {
+        "dst": "172.17.0.0/16",
+        "dev": "eth0",
+        "table": "ipv4_demo",
+        "scope": "link",
+        "flags": []
+    },
+    {
+        "dst": "default",
+        "gateway": "172.17.0.1",
+        "dev": "eth0",
         "flags": []
     },
     {
@@ -65,7 +79,34 @@
     },
     {
         "type": "local",
+        "dst": "2001:db8::1",
+        "dev": "lo",
+        "table": "ipv6_demo",
+        "metric": 1024,
+        "flags": [],
+        "pref": "medium"
+    },
+    {
+        "dst": "2001:db8::1",
+        "dev": "lo",
+        "protocol": "kernel",
+        "metric": 256,
+        "flags": [],
+        "pref": "medium"
+    },
+    {
+        "type": "local",
         "dst": "::1",
+        "dev": "lo",
+        "table": "local",
+        "protocol": "kernel",
+        "metric": 0,
+        "flags": [],
+        "pref": "medium"
+    },
+    {
+        "type": "local",
+        "dst": "2001:db8::1",
         "dev": "lo",
         "table": "local",
         "protocol": "kernel",

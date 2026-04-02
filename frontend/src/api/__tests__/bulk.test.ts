@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { NftResponseSchema } from '@/types/nft';
 import { AddrResponseSchema } from '@/types/addr';
-import { RouteResponseSchema } from '@/types/route';
-import * as fs from 'fs';
-import * as path from 'path';
+import { RouteResponseSchema, RuleResponseSchema } from '@/types/ip';
+import fs from 'fs';
+import path from 'path';
 
 describe('Schema Bulk Validation', () => {
   const fixturesBaseDir = path.resolve(__dirname, 'fixtures');
@@ -11,6 +11,7 @@ describe('Schema Bulk Validation', () => {
   const testSuites = [
     { name: 'NftResponseSchema', dir: 'nft', schema: NftResponseSchema },
     { name: 'AddrResponseSchema', dir: 'addr', schema: AddrResponseSchema },
+    { name: 'RuleResponseSchema', dir: 'rule', schema: RuleResponseSchema },
     { name: 'RouteResponseSchema', dir: 'route', schema: RouteResponseSchema },
   ];
 
