@@ -1,8 +1,8 @@
-import { NftResponse, ChainDef, RuleDef } from '../../api/nftTypes';
+import { NftResponse, ChainDef, RuleDef } from '@/types/nft';
 
 /**
  * Maps represented as follows:
- * result: Map<hookName, Map<chainName, [chainDef, ruleDefs[]]>>
+ * result: Map<hookName, Map<chainName, [chainDef, ruleDefs[]]>>  #TODO: create aliases
  */
 export type RestructuredNft = Map<string, Map<string, [ChainDef, RuleDef[]]>>;
 

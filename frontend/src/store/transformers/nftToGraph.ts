@@ -1,21 +1,11 @@
+import { ElementDefinition } from 'cytoscape';
 import { RestructuredNft } from './nftTransformer';
-
-export interface CytoscapeElement {
-  data: {
-    id: string;
-    name?: string;
-    parent?: string;
-    matcher?: string;
-    action?: string;
-    [key: string]: any;
-  };
-}
 
 /**
  * Converts restructured NFT data into Cytoscape elements.
  */
-export function convertNftToCytoscape(restructured: RestructuredNft): CytoscapeElement[] {
-  const elements: CytoscapeElement[] = [];
+export function nftToGraph(restructured: RestructuredNft): ElementDefinition[] {
+  const elements: ElementDefinition[] = [];
 
   for (const [_hook, chains] of restructured) {
     for (const [chainName, [chainDef, rules]] of chains) {
@@ -37,7 +27,7 @@ export function convertNftToCytoscape(restructured: RestructuredNft): CytoscapeE
         elements.push({
           data: {
             id: ruleId,
-            name: 'rule',
+            name: `${matcher} -> ${action}`,
             parent: chainId,
             matcher,
             action,

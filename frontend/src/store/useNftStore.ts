@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ElementDefinition } from 'cytoscape';
 
 import { RestructuredNft, restructureNft } from './transformers/nftTransformer';
+import { nftToGraph } from './transformers/nftToGraph';
 import { Packet, Change } from '@/types/packet';
 import { NftResponse } from '@/types/nft';
 
@@ -16,17 +17,12 @@ type NftStore = {
   actions: NftActions
 }
 
-const useNftStore = create<NftStore>((set) => ({
+const useNftStore = create<NftStore>((set, get) => ({
   data: new Map(),
   actions: {
     setData: (data) => set({ data: restructureNft(data) }),
     getGraph: (_: string): ElementDefinition[] => {
-      // TODO: implement
-    return [
-        { data: { id: 'stub-node-1', name: 'Stub entry' } },
-        { data: { id: 'stub-node-2', name: 'Stub entry II' } },
-        { data: { source: 'stub-node-1', target: 'stub-node-2' } },
-    ]
+        return nftToGraph(get().data);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       const changes = [
