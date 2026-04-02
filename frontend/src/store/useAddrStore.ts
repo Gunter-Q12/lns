@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { ElementDefinition } from 'cytoscape';
 import { AddrResponse } from '@/types/addr';
 import { Packet, Change } from '@/types/packet';
+import { addrToGraph } from './transformers/addrToGraph';
 
 type AddrActions = {
   setData: (data: AddrResponse) => void;
@@ -14,15 +15,12 @@ type AddrStore = {
   actions: AddrActions;
 }
 
-const useAddrStore = create<AddrStore>((set) => ({
+const useAddrStore = create<AddrStore>((set, get) => ({
   data: [],
   actions: {
     setData: (data) => set({ data }),
     getGraph: (_: string): ElementDefinition[] => {
-      // TODO: implement
-      return [
-        { data: { id: 'addr-stub-1', name: 'Addr Stub' } },
-      ];
+        return addrToGraph(get().data);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       // TODO: implement
