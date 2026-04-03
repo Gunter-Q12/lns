@@ -1,9 +1,12 @@
 import { NftResponse, NftResponseSchema } from '@/types/nft';
 import { AddrResponse, AddrResponseSchema } from '@/types/addr';
 import { RuleResponseSchema, IpResponse, RouteResponseSchema } from '@/types/ip';
+import { LsnsResponse, LsnsResponseSchema } from '@/types/lsns';
 
-export async function fetchNft(baseUrl: string = '/api'): Promise<NftResponse> {
-  const response = await fetch(`${baseUrl}/nft`);
+export async function fetchNft(baseUrl: string, namespace?: string): Promise<NftResponse> {
+  const url = new URL('nft', baseUrl);
+  if (namespace) url.searchParams.append('namespace', namespace);
+  const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error(`Failed to fetch nft: ${response.statusText}`);
   }
@@ -11,11 +14,21 @@ export async function fetchNft(baseUrl: string = '/api'): Promise<NftResponse> {
   return NftResponseSchema.parse(data);
 }
 
-export async function fetchRoute(baseUrl: string = '/api'): Promise<IpResponse> {
+export async function fetchRoute(baseUrl: string, namespace?: string): Promise<IpResponse> {
+  const routeUrl = new URL('route', baseUrl);
+  const rule4Url = new URL('rule4', baseUrl);
+  const rule6Url = new URL('rule6', baseUrl);
+
+  if (namespace) {
+    routeUrl.searchParams.append('namespace', namespace);
+    rule4Url.searchParams.append('namespace', namespace);
+    rule6Url.searchParams.append('namespace', namespace);
+  }
+
   const [routeRes, rule4Res, rule6Res] = await Promise.all([
-    fetch(`${baseUrl}/route`),
-    fetch(`${baseUrl}/rule4`),
-    fetch(`${baseUrl}/rule6`),
+    fetch(routeUrl.toString()),
+    fetch(rule4Url.toString()),
+    fetch(rule6Url.toString()),
   ]);
 
   if (!routeRes.ok || !rule4Res.ok || !rule6Res.ok) {
@@ -38,11 +51,24 @@ export async function fetchRoute(baseUrl: string = '/api'): Promise<IpResponse> 
   };
 }
 
-export async function fetchAddr(baseUrl: string = '/api'): Promise<AddrResponse> {
-  const response = await fetch(`${baseUrl}/addr`);
+export async function fetchAddr(baseUrl: string, namespace?: string): Promise<AddrResponse> {
+  const url = new URL('addr', baseUrl);
+  if (namespace) url.searchParams.append('namespace', namespace);
+  const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error(`Failed to fetch addr: ${response.statusText}`);
   }
   const data = await response.json();
   return AddrResponseSchema.parse(data);
+}
+
+export async function fetchLsns(baseUrl: string, namespace?: string): Promise<LsnsResponse> {
+  const url = new URL('namespaces', baseUrl);
+  if (namespace) url.searchParams.append('namespace', namespace);
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`Failed to fetch namespaces: ${response.statusText}`);
+  }
+  const data = await response.json();
+  return LsnsResponseSchema.parse(data);
 }

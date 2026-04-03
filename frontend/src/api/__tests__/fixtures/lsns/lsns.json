@@ -1,0 +1,53 @@
+{
+   "namespaces": [
+      {
+         "ns": 4026531840,
+         "type": "net",
+         "nprocs": 301,
+         "pid": 1,
+         "user": "root",
+         "netnsid": "unassigned",
+         "nsfs": null,
+         "command": "/sbin/init splash",
+         "children": [
+            {
+               "ns": 4026532478,
+               "type": "net",
+               "nprocs": 1,
+               "pid": 1334,
+               "user": "root",
+               "netnsid": "unassigned",
+               "nsfs": null,
+               "command": "/usr/libexec/accounts-daemon"
+            },{
+               "ns": 4026532692,
+               "type": "net",
+               "nprocs": 1,
+               "pid": 2105,
+               "user": "rtkit",
+               "netnsid": "unassigned",
+               "nsfs": null,
+               "command": "/usr/libexec/rtkit-daemon"
+            }
+         ]
+      },{
+         "ns": 4026533846,
+         "type": "net",
+         "nprocs": 1,
+         "pid": 44173,
+         "user": "root",
+         "netnsid": "0",
+         "nsfs": "/run/docker/netns/94ba6f52f019",
+         "command": "/bin/bash"
+      },{
+         "ns": 4026533900,
+         "type": "net",
+         "nprocs": 1,
+         "pid": 31154,
+         "user": "gunter",
+         "netnsid": "unassigned",
+         "nsfs": null,
+         "command": "/snap/firefox/7967/usr/lib/firefox/firefox -contentproc -isForBrowser -prefsHandle 0:47212 -prefMapHandle 1:281899 -jsInitHandle 2:227672 -parentBuildID 20260309231353 -sandboxReporter 3 -chrootClient 4 -ipcHandle 5 -initialChannelId {2a23ca26-1289-4910-8aef-4df046e309cd} -parentPid 5905 -crashReporter 6 -crashHelper 7 -greomni /snap/firefox/7967/usr/lib/firefox/omni.ja -appomni /snap/firefox/7967/usr/lib/firefox/browser/omni.ja -appDir /snap/firefox/7967/usr/lib/firefox/browser 32 tab"
+      }
+   ]
+}
