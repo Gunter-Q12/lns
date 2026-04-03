@@ -15,7 +15,7 @@ import { GraphCanvas } from './components/GraphCanvas';
 import InputPanel from './components/InputPanel';
 import RoutePanel from './components/RoutePanel';
 import { BreadcrumbSection } from './components/BreadcrumbSection';
-import { fetchNft, fetchAddr, fetchRoute } from '@/api';
+import { fetchNft, fetchAddr, fetchRoute, fetchLsns } from '@/api';
 import { useNftActions } from './store/useNftStore';
 import { useAddrActions } from './store/useAddrStore';
 import { useIpActions } from './store/useIpStore';
@@ -25,6 +25,9 @@ import { Change, Packet } from '@/types/packet';
 import { ElementDefinition } from 'cytoscape';
 import { ViewElement } from './types/view';
 import elementsData from '@/data/elements.json';
+import { NftResponse } from './types/nft';
+import { AddrResponse } from './types/addr';
+import { IpResponse } from './types/ip';
 
 // Optional: specific overrides if needed, otherwise GraphCanvas provides defaults
 // Styles moved to src/config/graph-styles.ts
@@ -77,15 +80,36 @@ function App() {
   useEffect(() => {
     console.log("Load data into zustand started");
     const fetchData = async () => {
-        const [nftResponse, addrResponse, ipResponse] = await Promise.all([
-            fetchNft(),
-            fetchAddr(),
-            fetchRoute()
-        ]);
-        setNftData(nftResponse);
-        setAddrData(addrResponse);
-        setIpData(ipResponse);
-        resetView(false);
+      const lsnsResponse = await fetchLsns();
+
+      // Collect namespaces that have nsfs
+      const namespaces = lsnsResponse.namespaces
+          .filter(ns => ns.nsfs)
+          .map(ns => ns.nsfs!);
+
+      // Add 'host' (no namespace)
+      const targetNamespaces = [undefined, ...namespaces];
+
+      const nftMap = new Map<string, NftResponse>();
+      const addrMap = new Map<string, AddrResponse>();
+      const ipMap = new Map<string, IpResponse>();
+
+      await Promise.all(targetNamespaces.map(async (ns) => {
+          const key = ns === undefined ? "host" : ns;
+          const [nft, addr, ip] = await Promise.all([
+              fetchNft(ns),
+              fetchAddr(ns),
+              fetchRoute(ns)
+          ]);
+          nftMap.set(key, nft);
+          addrMap.set(key, addr);
+          ipMap.set(key, ip);
+      }));
+
+      setNftData(nftMap);
+      setAddrData(addrMap);
+      setIpData(ipMap);
+      resetView(false);
     };
     fetchData();
   }, []);

@@ -18,7 +18,6 @@ export const AddrItemSchema = z.object({
   flags: z.array(z.string()),
   mtu: z.number(),
   qdisc: z.string(),
-  master: z.string(),
   operstate: z.string(),
   group: z.string(),
   txqlen: z.number().optional(),
