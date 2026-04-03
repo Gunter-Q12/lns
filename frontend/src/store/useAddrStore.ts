@@ -5,22 +5,24 @@ import { Packet, Change } from '@/types/packet';
 import { addrToGraph } from './transformers/addrToGraph';
 
 type AddrActions = {
-  setData: (data: AddrResponse) => void;
-  getGraph: (hook: string) => ElementDefinition[];
+  setData: (data: Map<string, AddrResponse>) => void;
+  getGraph: (namespace: string) => ElementDefinition[];
   tracePacket: (packet: Packet) => [Packet, Change[]];
 }
 
 type AddrStore = {
-  data: AddrResponse;
+  data: Map<string, AddrResponse>;
   actions: AddrActions;
 }
 
 const useAddrStore = create<AddrStore>((set, get) => ({
-  data: [],
+  data: new Map(),
   actions: {
     setData: (data) => set({ data }),
-    getGraph: (_: string): ElementDefinition[] => {
-        return addrToGraph(get().data);
+    getGraph: (namespace: string): ElementDefinition[] => {
+        const namespaceData = get().data.get(namespace);
+        if (!namespaceData) return [];
+        return addrToGraph(namespaceData);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       // TODO: implement

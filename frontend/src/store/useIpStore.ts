@@ -5,25 +5,24 @@ import { Packet, Change } from '@/types/packet';
 import { ipToGraph } from './transformers/ipToGraph';
 
 type IpActions = {
-  setData: (data: IpResponse) => void;
-  getGraph: (hook: string) => ElementDefinition[];
+  setData: (data: Map<string, IpResponse>) => void;
+  getGraph: (namespace: string) => ElementDefinition[];
   tracePacket: (packet: Packet) => [Packet, Change[]];
 }
 
 type IpStore = {
-  data: IpResponse;
+  data: Map<string, IpResponse>;
   actions: IpActions;
 }
 
 const useIpStore = create<IpStore>((set, get) => ({
-  data: {
-    routes: [],
-    rules: [],
-  },
+  data: new Map(),
   actions: {
     setData: (data) => set({ data }),
-    getGraph: (_: string): ElementDefinition[] => {
-        return ipToGraph(get().data);
+    getGraph: (namespace: string): ElementDefinition[] => {
+        const namespaceData = get().data.get(namespace);
+        if (!namespaceData) return [];
+        return ipToGraph(namespaceData);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       const changes = [
