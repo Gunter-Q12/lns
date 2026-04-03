@@ -22,30 +22,35 @@ func New(exe *executor.Executor, logger *zap.Logger) *Handlers {
 }
 
 func (h *Handlers) Get(c *gin.Context) {
-	var cmd string
-	var args []string
+	var nsCmd []string
+	var cmd []string
+
+	namespace := c.Query("namespace")
+	if namespace != "" {
+		nsCmd = []string{"netns", "--net=" + namespace}
+	}
+
 	switch c.Param("path") {
+	case "/namespaces":
+		cmd = []string{"lsns", "--json", "-t", "net"}
 	case "/nft":
-		cmd = "nft"
-		args = []string{"--json", "list", "ruleset"}
+		cmd = []string{"nft", "--json", "list", "ruleset"}
 	case "/route":
-		cmd = "ip"
-		args = []string{"--json", "route", "show", "table", "all"}
+		cmd = []string{"ip", "--json", "route", "show", "table", "all"}
 	case "/rule4":
-		cmd = "ip"
-		args = []string{"--json", "rule"}
+		cmd = []string{"ip", "--json", "rule"}
 	case "/rule6":
-		cmd = "ip"
-		args = []string{"-6", "--json", "rule"}
+		cmd = []string{"ip", "-6", "--json", "rule"}
 	case "/addr":
-		cmd = "ip"
-		args = []string{"--json", "addr"}
+		cmd = []string{"ip", "--json", "addr"}
 	default:
-		c.String(http.StatusNotFound, "Available paths: /api/nft, /api/route, /api/addr. Received path: %s", c.Request.URL.Path)
+		c.String(http.StatusNotFound, "Received unknown path: %s", c.Request.URL.Path)
 		return
 	}
 
-	info, err := h.exe.Run(c.Request.Context(), cmd, args...)
+	finalCmd := append(nsCmd, cmd...)
+
+	info, err := h.exe.Run(c.Request.Context(), finalCmd[0], finalCmd[1:]...)
 	if err != nil {
 		h.logger.Error("getting data", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, gin.H{"errors": err.Error()})
