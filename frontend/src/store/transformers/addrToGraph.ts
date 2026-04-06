@@ -1,52 +1,77 @@
 import { ElementDefinition } from 'cytoscape';
-import { AddrResponse } from '@/types/addr';
+import { AddrResponse, AddrItem } from '@/types/addr';
 
 /**
- * Converts AddrResponse into Cytoscape ElementDefinitions.
- *
- * AddrItem: Each interface is a node (ID based on ifindex or ifname).
- * AddrInfo: Each IP address is a node with the corresponding interface as its parent.
+ * Converts Map of AddrResponses into Cytoscape ElementDefinitions.
  */
-export const addrToGraph = (data: AddrResponse): ElementDefinition[] => {
+export const addrToGraph = (dataMap: Map<string, AddrResponse>): ElementDefinition[] => {
   const elements: ElementDefinition[] = [];
 
-  data.forEach((item) => {
-    const parentId = `interface-${item.ifindex}`;
+  dataMap.forEach((data, namespace) => {
+    const namespaceId = `namespace_${namespace}`;
+    elements.push(createNamespaceNode(namespaceId, namespace));
 
-    // 1. Add Interface node (AddrItem)
-    elements.push({
+    data.forEach((item) => {
+      elements.push(...createInterfaceAndAddressNodes(namespace, namespaceId, item));
+    });
+
+    elements.push(...createBridgeEdges(namespace, data));
+    elements.push(...createVethEdges(namespace, data, dataMap));
+  });
+
+  return elements;
+};
+
+const createNamespaceNode = (id: string, name: string): ElementDefinition => ({
+  data: { id, name, type: 'namespace' }
+});
+
+const createInterfaceAndAddressNodes = (
+  namespace: string,
+  namespaceId: string,
+  item: AddrItem
+): ElementDefinition[] => {
+  const interfaceId = `interface-${namespace}-${item.ifindex}`;
+  const nodes: ElementDefinition[] = [
+    {
       data: {
-        id: parentId,
+        id: interfaceId,
         name: item.ifname,
+        parent: namespaceId,
         type: 'interface',
         ifindex: item.ifindex
       }
-    });
+    }
+  ];
 
-    // 2. Add Address nodes (AddrInfo) as children
-    item.addr_info.forEach((info, index) => {
-      const addrId = `addr-${item.ifindex}-${index}`;
-      elements.push({
-        data: {
-          id: addrId,
-          name: info.local,
-          parent: parentId,
-          type: 'address',
-          family: info.family
-        }
-      });
+  item.addr_info.forEach((info, index) => {
+    nodes.push({
+      data: {
+        id: `addr-${namespace}-${item.ifindex}-${index}`,
+        name: info.local,
+        parent: interfaceId,
+        type: 'address',
+        family: info.family
+      }
     });
   });
 
-  // 3. Add edges for master-slave relationships
+  return nodes;
+};
+
+const createBridgeEdges = (
+  namespace: string,
+  data: AddrResponse
+): ElementDefinition[] => {
+  const edges: ElementDefinition[] = [];
+
   data.forEach((item) => {
     if (item.master) {
-      const sourceId = `interface-${item.ifindex}`;
-      // Find the master interface by ifname
+      const sourceId = `interface-${namespace}-${item.ifindex}`;
       const masterItem = data.find(m => m.ifname === item.master);
       if (masterItem) {
-        const targetId = `interface-${masterItem.ifindex}`;
-        elements.push({
+        const targetId = `interface-${namespace}-${masterItem.ifindex}`;
+        edges.push({
           data: {
             id: `edge-${sourceId}-master-${targetId}`,
             source: sourceId,
@@ -58,5 +83,41 @@ export const addrToGraph = (data: AddrResponse): ElementDefinition[] => {
     }
   });
 
-  return elements;
+  return edges;
+};
+
+const createVethEdges = (
+  namespace: string,
+  data: AddrResponse,
+  dataMap: Map<string, AddrResponse>
+): ElementDefinition[] => {
+  const edges: ElementDefinition[] = [];
+
+  data.forEach((item) => {
+    if (item.link_index) {
+      const sourceId = `interface-${namespace}-${item.ifindex}`;
+
+      // Search across all namespaces for the linked interface
+      dataMap.forEach((otherData, otherNamespace) => {
+        otherData.forEach((otherItem) => {
+          if (otherItem.ifindex === item.link_index && otherItem.link_index === item.ifindex) {
+            const targetId = `interface-${otherNamespace}-${otherItem.ifindex}`;
+            // To avoid double edges, only add if sourceId < targetId
+            if (sourceId < targetId) {
+              edges.push({
+                data: {
+                  id: `edge-${sourceId}-link-${targetId}`,
+                  source: sourceId,
+                  target: targetId,
+                  type: 'veth-link'
+                }
+              });
+            }
+          }
+        });
+      });
+    }
+  });
+
+  return edges;
 };

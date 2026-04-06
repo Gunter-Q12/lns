@@ -20,9 +20,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
   actions: {
     setData: (data) => set({ data }),
     getGraph: (namespace: string): ElementDefinition[] => {
-        const namespaceData = get().data.get(namespace);
-        if (!namespaceData) return [];
-        return addrToGraph(namespaceData);
+        return addrToGraph(get().data);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       // TODO: implement
