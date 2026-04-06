@@ -239,6 +239,7 @@ function App() {
       } as any);
       layout.run();
     } else {
+      cy?.resize();
       cy?.fit("", 10);
     }
   }, [graph]);
