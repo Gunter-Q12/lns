@@ -1,5 +1,0 @@
-[
-  { "data": { "id": "ingress", "name": "Ingress" }, "position": { "x": 100, "y": 490 } },
-  { "data": { "id": "bridge_port_q", "name": "Bridge Port?" }, "position": { "x": 250, "y": 490 } },
-  { "data": { "id": "protocol_type_q", "name": "Protocol Type?" }, "position": { "x": 250, "y": 370 } }
-]
