@@ -104,9 +104,9 @@
         ]
     },
     {
-        "ifindex": 21,
+        "ifindex": 9,
         "link_index": 2,
-        "ifname": "vethcb6d2f0",
+        "ifname": "veth69f3434",
         "flags": [
             "BROADCAST",
             "MULTICAST",
@@ -119,13 +119,13 @@
         "operstate": "UP",
         "group": "default",
         "link_type": "ether",
-        "address": "e2:9c:41:e4:8d:54",
+        "address": "42:82:9a:52:4b:d9",
         "broadcast": "ff:ff:ff:ff:ff:ff",
         "link_netnsid": 0,
         "addr_info": [
             {
                 "family": "inet6",
-                "local": "fe80::e09c:41ff:fee4:8d54",
+                "local": "fe80::4082:9aff:fe52:4bd9",
                 "prefixlen": 64,
                 "scope": "link",
                 "valid_life_time": 4294967295,
