@@ -61,6 +61,16 @@ function App() {
     });
   }
 
+  function getCurrentNamespace(view: ViewElement[]): string {
+    for (let i = view.length - 1; i >= 0; i--) {
+      if (view[i].id.startsWith("namespace_")) {
+        return view[i].id.replace("namespace_", "");
+      }
+    }
+    return "host";
+  }
+
+
   // Popstate handler
   useEffect(() => {
     console.log("Popstate handler started");
@@ -119,14 +129,15 @@ function App() {
   useEffect(() => {
     console.log("Set graph based on view started");
     const currentViewId = view.at(-1)?.id || "";
+    const currentNamespace = getCurrentNamespace(view);
     if (currentViewId === "host") {  // TODO: probaly should check agains a set of namespaces or sth
-        setGraph(initialElements)
+      setGraph(initialElements)
     } else if (currentViewId === "ingress" || currentViewId === "egress") {
-      setGraph(getAddrGraph(currentViewId))
+      setGraph(getAddrGraph(currentNamespace))
     } else if (currentViewId === "ip_routing_decision" || currentViewId === "ip_routing_decision_local") {
-      setGraph(getIpGraph(currentViewId))
+      setGraph(getIpGraph(currentNamespace))
     } else {
-      setGraph(getNftGraph(currentViewId))
+      setGraph(getNftGraph(currentNamespace))
     }
   }, [view])
 
