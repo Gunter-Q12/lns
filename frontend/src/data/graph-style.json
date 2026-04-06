@@ -13,11 +13,7 @@
       "font-family": "Inter, system-ui, sans-serif",
       "font-size": "13px",
       "font-weight": "500",
-      "color": "#64748b",
-      "padding": "12px",
-      "width": 60,
-      "text-wrap": "wrap",
-      "text-max-width": 40
+      "color": "#64748b"
     }
   },
   {

@@ -1,7 +1,7 @@
 [
   { "data": { "id": "ingress", "name": "Ingress" }, "position": { "x": 100, "y": 490 }, "grabbable": false },
   { "data": { "id": "bridge_port_q", "name": "Bridge Port?" }, "position": { "x": 250, "y": 490 } , "grabbable": false },
-  { "data": { "id": "protocol_type_q", "name": "Protocol Type?" }, "position": { "x": 250, "y": 370 } , "grabbable": false },
+  { "data": { "id": "protocol_type_q", "name": "Protocol\nType?" }, "position": { "x": 250, "y": 370 } , "grabbable": false },
 
   { "data": { "id": "local_process", "name": "Local Process" }, "position": { "x": 550, "y": 80 } , "grabbable": false },
 
@@ -13,7 +13,7 @@
   { "data": { "id": "ip_output", "name": "Output", "parent": "ip" }, "position": { "x": 750, "y": 180 } , "grabbable": false },
   { "data": { "id": "ip_forward", "name": "Forward", "parent": "ip" }, "position": { "x": 650, "y": 280 } , "grabbable": false },
   { "data": { "id": "ip_postrouting", "name": "Postrouting", "parent": "ip" }, "position": { "x": 750, "y": 280 } , "grabbable": false },
-  { "data": { "id": "bridge_device_q", "name": "Bridge Device?", "parent": "ip" }, "position": { "x": 850, "y": 280 } , "grabbable": false },
+  { "data": { "id": "bridge_device_q", "name": "Bridge\nDevice?", "parent": "ip" }, "position": { "x": 850, "y": 280 } , "grabbable": false },
 
   { "data": { "id": "bridge", "name": "Bridge" } , "grabbable": false },
   { "data": { "id": "bridge_prerouting", "name": "Prerouting", "parent": "bridge" }, "position": { "x": 450, "y": 490 } , "grabbable": false },

@@ -14,7 +14,26 @@ interface GraphCanvasProps {
 
 export function GraphCanvas({ elements, stylesheet = [], className, cy }: GraphCanvasProps) {
   const finalStylesheet = useMemo(() => {
-    return [...defaultStyle, ...stylesheet];
+    const dynamicStyles: StylesheetStyle[] = [
+      {
+        selector: 'node',
+        style: {
+          'width': (node: cytoscape.NodeSingular) => {
+            const label = node.data('name') || '';
+            const lines = (label as string).split('\n');
+            const maxLineLength = Math.max(...lines.map((line: string) => line.length));
+            return Math.max(40, maxLineLength * 7 + 24);
+          },
+          'height': (node: cytoscape.NodeSingular) => {
+            const label = node.data('name') || '';
+            const lineCount = label.split('\n').length;
+            return Math.max(32, lineCount * 18 + 14); // ~18px per line + padding
+          },
+          'text-wrap': 'wrap',
+        }
+      } as any
+    ];
+    return [...defaultStyle, ...dynamicStyles, ...stylesheet];
   }, [stylesheet]);
 
   return (
