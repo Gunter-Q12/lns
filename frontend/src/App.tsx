@@ -51,7 +51,7 @@ function App() {
 
   function resetView(pushHistory: boolean = true) {
     setView(() => {
-      const initialView = [{id: "host", label: "Host"}];
+      const initialView = [{id: "namespace_host", label: "Host"}];
       if (pushHistory) {
         window.history.pushState(initialView, '', `host`);
       } else {
@@ -130,7 +130,7 @@ function App() {
     console.log("Set graph based on view started");
     const currentViewId = view.at(-1)?.id || "";
     const currentNamespace = getCurrentNamespace(view);
-    if (currentViewId === "host") {  // TODO: probaly should check agains a set of namespaces or sth
+    if (currentViewId.startsWith("namespace_")) {  // TODO: probaly should check agains a set of namespaces or sth
       setGraph(initialElements)
     } else if (currentViewId === "ingress" || currentViewId === "egress") {
       setGraph(getAddrGraph(currentNamespace))
@@ -229,7 +229,7 @@ function App() {
   useEffect(() => {
     const currentViewId = view.at(-1)?.id || "";
     console.log("Layout effect started", currentViewId);
-    if (cy && currentViewId != "host") {  // TODO: probaly should check agains a set of namespaces or sth
+    if (cy && !currentViewId.startsWith("namespace_")) {  // TODO: probaly should check agains a set of namespaces or sth
       const layout = cy.layout({
         name: 'cose-bilkent',
         animate: false,
