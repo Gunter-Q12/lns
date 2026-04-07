@@ -1,14 +1,28 @@
 import { ElementDefinition } from 'cytoscape';
 import { RestructuredNft } from './nftTransformer';
+import { HOOK_METADATA } from '@/types/nft';
 
 /**
  * Converts restructured NFT data into Cytoscape elements.
  */
-export function nftToGraph(restructured: RestructuredNft): ElementDefinition[] {
+export function nftToGraph(restructured: RestructuredNft, hook: string): ElementDefinition[] {
   const elements: ElementDefinition[] = [];
+  const metadata = HOOK_METADATA[hook];
 
-  for (const [_hook, chains] of restructured) {
+  if (!metadata) {
+    return elements;
+  }
+
+  for (const [_hookName, chains] of restructured) {
     for (const [chainName, [chainDef, rules]] of chains) {
+      // Only include chains where hook and family fields match the requested hook metadata
+      const familyMatch = metadata.families.includes(chainDef.family);
+      const hookMatch = metadata.hook === chainDef.hook;
+
+      if (!familyMatch || !hookMatch) {
+        continue;
+      }
+
       const chainId = `${chainDef.handle}_chain`;
 
       // 1. Add Chain Node

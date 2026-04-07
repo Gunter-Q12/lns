@@ -137,7 +137,7 @@ function App() {
     } else if (currentViewId === "ip_routing_decision" || currentViewId === "ip_routing_decision_local") {
       setGraph(getIpGraph(currentNamespace))
     } else {
-      setGraph(getNftGraph(currentNamespace))
+      setGraph(getNftGraph(currentNamespace, currentViewId))
     }
   }, [view])
 

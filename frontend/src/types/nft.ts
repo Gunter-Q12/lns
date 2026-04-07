@@ -1,5 +1,22 @@
 import { z } from 'zod';
 
+export const HOOK_METADATA: Record<string, { families: string[]; hook: string }> = {
+  'ip_prerouting': { families: ['ip', 'inet', 'ip6'], hook: 'prerouting' },
+  'ip_input': { families: ['ip', 'inet', 'ip6'], hook: 'input' },
+  'ip_output': { families: ['ip', 'inet', 'ip6'], hook: 'output' },
+  'ip_forward': { families: ['ip', 'inet', 'ip6'], hook: 'forward' },
+  'ip_postrouting': { families: ['ip', 'inet', 'ip6'], hook: 'postrouting' },
+  'bridge_prerouting': { families: ['bridge'], hook: 'prerouting' },
+  'bridge_input': { families: ['bridge'], hook: 'input' },
+  'bridge_forward': { families: ['bridge'], hook: 'forward' },
+  'bridge_postrouting': { families: ['bridge'], hook: 'postrouting' },
+  'bridge_output': { families: ['bridge'], hook: 'output' },
+  'arp_input': { families: ['arp'], hook: 'input' },
+  'arp_output': { families: ['arp'], hook: 'output' },
+  'ingress': { families: ['inet', 'netdev'], hook: 'ingress' },
+  'egress': { families: ['netdev'], hook: 'ingress' }
+};
+
 export const MetainfoSchema = z.object({
   version: z.string(),
   release_name: z.string(),

@@ -8,7 +8,7 @@ import { NftResponse } from '@/types/nft';
 
 type NftActions = {
   setData: (data: Map<string, NftResponse>) => void;
-  getGraph: (namespace: string) => ElementDefinition[];
+  getGraph: (namespace: string, hook: string) => ElementDefinition[];
   tracePacket: (packet: Packet) => [Packet, Change[]];
 }
 
@@ -27,10 +27,10 @@ const useNftStore = create<NftStore>((set, get) => ({
       });
       set({ data: restructuredData });
     },
-    getGraph: (namespace: string): ElementDefinition[] => {
+    getGraph: (namespace: string, hook: string): ElementDefinition[] => {
       const namespaceData = get().data.get(namespace);
       if (!namespaceData) return [];
-      return nftToGraph(namespaceData);
+      return nftToGraph(namespaceData, hook);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
       const changes = [
