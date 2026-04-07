@@ -8,6 +8,7 @@ type AddrActions = {
   setData: (data: Map<string, AddrResponse>) => void;
   getGraph: (namespace: string) => ElementDefinition[];
   tracePacket: (packet: Packet) => [Packet, Change[]];
+  listInterfaces: () => Map<string, string[]>;
 }
 
 type AddrStore = {
@@ -26,6 +27,14 @@ const useAddrStore = create<AddrStore>((set, get) => ({
       // TODO: implement
       const changes: Change[] = [];
       return [packet, changes];
+    },
+    listInterfaces: (): Map<string, string[]> => {
+      const result = new Map<string, string[]>();
+      for (const [namespace, addrData] of get().data.entries()) {
+        const interfaces = addrData.map(item => item.ifname);
+        result.set(namespace, interfaces);
+      }
+      return result;
     }
   }
 }));

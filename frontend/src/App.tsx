@@ -38,7 +38,7 @@ function App() {
   const [view, setView] = useState<ViewElement[]>([]);
   const [changes, setChanges] = useState<Change[]>([]);
   const { setData: setNftData, getGraph: getNftGraph, tracePacket: traceNftPacket } = useNftActions();
-  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket } = useAddrActions();
+  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket, listInterfaces } = useAddrActions();
   const { setData: setIpData, getGraph: getIpGraph, tracePacket: traceIpPacket } = useIpActions();
 
   function appendView(element: ViewElement) {
@@ -255,7 +255,7 @@ function App() {
       <main className="flex-1 min-h-0 min-w-0">
         <ResizablePanelGroup orientation="horizontal" className="h-full">
           <ResizablePanel defaultSize={25} minSize={15}>
-            <InputPanel handleTrace={handleTrace} />
+            <InputPanel handleTrace={handleTrace} listInterfaces={listInterfaces} />
           </ResizablePanel>
 
           <ResizableHandle withHandle />

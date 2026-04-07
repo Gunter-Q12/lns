@@ -11,10 +11,11 @@ import { Button } from "@/components/ui/button"
 import { Packet } from "@/types/packet"
 
 interface InputPanelProps {
-  handleTrace: (packet: Packet) => void
+  handleTrace: (packet: Packet) => void;
+  listInterfaces: () => Map<string, string[]>;
 }
 
-function InputPanel({handleTrace}: InputPanelProps) {
+function InputPanel({handleTrace, listInterfaces}: InputPanelProps) {
   const [protocol, setProtocol] = useState<string>("arp")
   const [packet, setPacket] = useState<Packet>({
     senderMac: "",
@@ -22,7 +23,9 @@ function InputPanel({handleTrace}: InputPanelProps) {
     srcPort: "",
     dstPort: "",
     srcIp: "",
-    dstIp: ""
+    dstIp: "",
+    srcNamespace: "",
+    srcInterface: "",
   });
 
   const handleInputChange = (key: string, value: string) => {

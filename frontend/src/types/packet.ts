@@ -5,6 +5,10 @@ export type Packet = {
     dstPort?: string;
     srcIp?: string;
     dstIp?: string;
+    srcNamespace?: string;
+    srcInterface?: string;
+    dstNamespace?: string;
+    dstInterface?: string;
 }
 
 export type Change = {
