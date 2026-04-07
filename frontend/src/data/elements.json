@@ -1,4 +1,5 @@
 [
+  { "data": { "id": "interfaces_in", "name": "Interfaces" }, "position": { "x": 100, "y": 620 }, "grabbable": false },
   { "data": { "id": "ingress", "name": "Ingress" }, "position": { "x": 100, "y": 490 }, "grabbable": false },
   { "data": { "id": "bridge_port_q", "name": "Bridge Port?" }, "position": { "x": 250, "y": 490 } , "grabbable": false },
   { "data": { "id": "protocol_type_q", "name": "Protocol\nType?" }, "position": { "x": 250, "y": 370 } , "grabbable": false },
@@ -29,9 +30,11 @@
   { "data": { "id": "arp_output", "name": "Output", "parent": "arp" }, "position": { "x": 850, "y": 620 } , "grabbable": false },
 
   { "data": { "id": "egress", "name": "Egress" }, "position": { "x": 1050, "y": 490 } , "grabbable": false },
+  { "data": { "id": "interfaces_out", "name": "Interfaces" }, "position": { "x": 1050, "y": 620 }, "grabbable": false },
 
 
 
+  { "data": { "id": "interfaces_in_to_ingress", "source": "interfaces_in", "target": "ingress", "group": "ingress" } },
   { "data": { "id": "ingress_to_bridge_port", "source": "ingress", "target": "bridge_port_q", "group": "ingress" } },
 
   { "data": { "id": "bridge_port_yes", "source": "bridge_port_q", "target": "bridge_prerouting", "group": "bridge" } },
@@ -61,6 +64,8 @@
   { "data": { "id": "arp_handler_to_out", "source": "arp_handler", "target": "arp_output", "group": "arp" } },
   { "data": { "id": "arp_out_to_egress", "source": "arp_output", "target": "egress", "group": "arp" } },
 
-  { "data": { "id": "bridge_input_to_prerouting", "source": "bridge_input", "target": "ip_prerouting", "group": "connection" } }
+  { "data": { "id": "bridge_input_to_prerouting", "source": "bridge_input", "target": "ip_prerouting", "group": "connection" } },
+
+  { "data": { "id": "egress_to_interfaces_out", "source": "egress", "target": "interfaces_out", "group": "connection" } }
 
 ]

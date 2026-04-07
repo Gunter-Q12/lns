@@ -132,7 +132,7 @@ function App() {
     const currentNamespace = getCurrentNamespace(view);
     if (currentViewId.startsWith("namespace_")) {  // TODO: probaly should check agains a set of namespaces or sth
       setGraph(initialElements)
-    } else if (currentViewId === "ingress" || currentViewId === "egress") {
+    } else if (currentViewId.startsWith("interfaces_")) {
       setGraph(getAddrGraph(currentNamespace))
     } else if (currentViewId === "ip_routing_decision" || currentViewId === "ip_routing_decision_local") {
       setGraph(getIpGraph(currentNamespace))
