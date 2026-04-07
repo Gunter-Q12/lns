@@ -34,13 +34,66 @@ function InputPanel({handleTrace, listInterfaces}: InputPanelProps) {
 
   const onTrace = () => handleTrace(packet);
 
+  const interfacesMap = listInterfaces();
+  const sourceOptions: { label: string; value: string; ns: string; iface?: string }[] = [];
+
+  for (const [ns, ifaces] of interfacesMap.entries()) {
+    // Add process option
+    sourceOptions.push({
+      label: `process: ${ns}`,
+      value: `process:${ns}`,
+      ns: ns,
+    });
+    // Add interface options
+    ifaces.forEach((iface) => {
+      sourceOptions.push({
+        label: `${iface}: ${ns}`,
+        value: `${iface}:${ns}`,
+        ns: ns,
+        iface: iface,
+      });
+    });
+  }
+
+  const handleSourceChange = (val: string) => {
+    const option = sourceOptions.find((o) => o.value === val);
+    if (option) {
+      setPacket((prev) => ({
+        ...prev,
+        srcNamespace: option.ns,
+        srcInterface: option.iface || "",
+      }));
+    }
+  };
+
   return (
     <div className="flex h-full flex-col p-4">
       <h2 className="text-lg font-semibold tracking-tight">Input packet</h2>
       <p className="mt-2 text-sm text-muted-foreground">
         Input packet to trace
       </p>
+
       <div className="mt-4">
+        <label className="text-sm font-medium leading-none mb-2 block">Source Interface</label>
+        <Select
+          value={packet.srcInterface ? `${packet.srcInterface}:${packet.srcNamespace}` : `process:${packet.srcNamespace}`}
+          onValueChange={handleSourceChange}
+        >
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select source" />
+          </SelectTrigger>
+          <SelectContent>
+            {sourceOptions.map((opt) => (
+              <SelectItem value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="mt-4">
+        <label className="text-sm font-medium leading-none mb-2 block">Protocol</label>
         <Select value={protocol} onValueChange={setProtocol}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Protocol" />
