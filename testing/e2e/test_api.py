@@ -7,13 +7,14 @@ import time
 from jsonpath_ng.ext import parse
 
 # Configuration
-COMPOSE_FILE = "backend/test/docker-compose.yml"
+COMPOSE_FILE = "testing/e2e/docker-compose.yml"
 BASE_URL = "http://localhost:31337/api"
 
 @pytest.fixture(scope="session", autouse=True)
-def manage_docker_compose():
+def manage_docker_compose(pytestconfig):
+    backend_service = pytestconfig.getoption("--backend")
     # Start Docker Compose
-    subprocess.run(f"docker compose -f {COMPOSE_FILE} up --build -d", check=True, shell=True)
+    subprocess.run(f"docker compose -f {COMPOSE_FILE} up --build -d {backend_service}", check=True, shell=True)
 
     # Wait for API to be ready
     start_time = time.time()

@@ -1,0 +1,26 @@
+services:
+  go-api:
+    build:
+      context: ../../
+      dockerfile: testing/e2e/Dockerfile.go
+    container_name: lns-backend-go
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - ADDRESS=0.0.0.0:31337
+    ports:
+      - "31337:31337"
+    restart: unless-stopped
+
+  py-api:
+    build:
+      context: ../../
+      dockerfile: testing/e2e/Dockerfile.py
+    container_name: lns-backend-py
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - ADDRESS=0.0.0.0:31337
+    ports:
+      - "31337:31337"
+    restart: unless-stopped
