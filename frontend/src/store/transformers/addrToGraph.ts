@@ -22,16 +22,19 @@ export const addrToGraph = (dataMap: Map<string, AddrResponse>): ElementDefiniti
   return elements;
 };
 
+export const interfaceToId = (namespace: string, ifindex: number) => `interface-${namespace}-${ifindex}`;
+
 const createNamespaceNode = (id: string, name: string): ElementDefinition => ({
   data: { id, name, type: 'namespace' }
 });
+
 
 const createInterfaceAndAddressNodes = (
   namespace: string,
   namespaceId: string,
   item: AddrItem
 ): ElementDefinition[] => {
-  const interfaceId = `interface-${namespace}-${item.ifindex}`;
+  const interfaceId = interfaceToId(namespace, item.ifindex);
   const nodes: ElementDefinition[] = [
     {
       data: {
@@ -67,10 +70,10 @@ const createBridgeEdges = (
 
   data.forEach((item) => {
     if (item.master) {
-      const sourceId = `interface-${namespace}-${item.ifindex}`;
+      const sourceId = interfaceToId(namespace, item.ifindex);
       const masterItem = data.find(m => m.ifname === item.master);
       if (masterItem) {
-        const targetId = `interface-${namespace}-${masterItem.ifindex}`;
+        const targetId = interfaceToId(namespace, masterItem.ifindex);
         edges.push({
           data: {
             id: `edge-${sourceId}-master-${targetId}`,
@@ -95,13 +98,13 @@ const createVethEdges = (
 
   data.forEach((item) => {
     if (item.link_index) {
-      const sourceId = `interface-${namespace}-${item.ifindex}`;
+      const sourceId = interfaceToId(namespace, item.ifindex);
 
       // Search across all namespaces for the linked interface
       dataMap.forEach((otherData, otherNamespace) => {
         otherData.forEach((otherItem) => {
           if (otherItem.ifindex === item.link_index && otherItem.link_index === item.ifindex) {
-            const targetId = `interface-${otherNamespace}-${otherItem.ifindex}`;
+            const targetId = interfaceToId(otherNamespace, otherItem.ifindex);
             // To avoid double edges, only add if sourceId < targetId
             if (sourceId < targetId) {
               edges.push({

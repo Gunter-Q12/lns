@@ -53,9 +53,9 @@ function App() {
     setView(() => {
       const initialView = [{id: "namespace_host", label: "Host"}];
       if (pushHistory) {
-        window.history.pushState(initialView, '', `host`);
+        window.history.pushState(initialView, '', `namespace_host`);
       } else {
-        window.history.replaceState(initialView, '', `host`);
+        window.history.replaceState(initialView, '', `namespace_host`);
       }
       return initialView;
     });
@@ -154,15 +154,15 @@ function App() {
     // Identify and highlight nodes based on changes
     const highlightedNodes: cytoscape.CollectionReturnValue[] = [];
 
-    const isHostView = changes.at(0)?.namespace === currentViewId && highlightedNodes.length > 0;
-    if (isHostView) {
-      highlightedNodes.push(cy.getElementById("ingress"))
-    }
+    // const isHostView = `namespace_${changes.at(0)?.namespace}` === currentViewId && highlightedNodes.length > 0;
+    // if (isHostView) {
+    //   highlightedNodes.push(cy.getElementById("ingress"))
+    // }
 
     changes.forEach(change => {
       let targetNode: cytoscape.CollectionReturnValue | null = null;
 
-      if (change.namespace === currentViewId) {
+      if (`namespace_${change.namespace}` === currentViewId) {
         targetNode = cy.getElementById(change.hook);
       } else if (change.hook === currentViewId) {
         targetNode = cy.getElementById(change.id);
@@ -174,9 +174,9 @@ function App() {
       }
     });
 
-    if (isHostView) {
-      highlightedNodes.push(cy.getElementById("egress"))
-    }
+    // if (isHostView) {
+    //   highlightedNodes.push(cy.getElementById("egress"))
+    // }
 
     // Highlight paths between consecutive highlighted nodes
     if (highlightedNodes.length > 1) {
@@ -257,13 +257,14 @@ function App() {
     const [nextPacket, changes] = traceAddrPacket(currentPacket);
     currentPacket = nextPacket;
     allChanges.push(...changes);
+    console.log("All changes", allChanges)
 
-    if (isBridge(packet)) {
-      const [nextPacket, changes] = traceIpPacket(currentPacket);
-      currentPacket = nextPacket;
-      allChanges.push(...changes);
+    // if (isBridge(packet)) {
+    //   const [nextPacket, changes] = traceIpPacket(currentPacket);
+    //   currentPacket = nextPacket;
+    //   allChanges.push(...changes);
 
-    }
+    // }
 
 
     // traceFunctions.forEach(traceFn => {

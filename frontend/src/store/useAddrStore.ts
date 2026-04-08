@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { ElementDefinition } from 'cytoscape';
 import { AddrResponse } from '@/types/addr';
 import { Packet, Change } from '@/types/packet';
-import { addrToGraph } from './transformers/addrToGraph';
+import { addrToGraph, interfaceToId } from './transformers/addrToGraph';
 
 type AddrActions = {
   setData: (data: Map<string, AddrResponse>) => void;
@@ -25,8 +25,28 @@ const useAddrStore = create<AddrStore>((set, get) => ({
         return addrToGraph(get().data);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
-      // TODO: implement
+      const { srcNamespace, srcInterface } = packet;
       const changes: Change[] = [];
+
+      if (!srcInterface || srcInterface === "process") {
+        changes.push({
+          namespace: srcNamespace || "host",
+          hook: "local_process",
+          id: "",
+          decision: "other",
+        });
+      } else {
+        const addrData = get().data.get(srcNamespace || "host");
+        const item = addrData?.find(i => i.ifname === srcInterface);
+
+        changes.push({
+          namespace: "host",
+          hook: "interfaces_in",
+          id: item ? interfaceToId(srcNamespace || "host", item.ifindex) : "",
+          decision: "other",
+        });
+      }
+
       return [packet, changes];
     },
     listInterfaces: (): Map<string, string[]> => {
