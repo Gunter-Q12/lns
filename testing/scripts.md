@@ -24,3 +24,8 @@ ip --json route show table all
 ip --json rule
 ip -6 --json rule
 ```
+
+Namespaces
+```
+sudo nsenter --net=/run/docker/netns/d1325ba210ba nft list tables
+```
