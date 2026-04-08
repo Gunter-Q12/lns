@@ -1,0 +1,14 @@
+{
+   "namespaces": [
+      {
+         "ns": 4026533276,
+         "type": "net",
+         "nprocs": 3,
+         "pid": 1,
+         "user": "root",
+         "netnsid": "unassigned",
+         "nsfs": null,
+         "command": "/usr/local/bin/api"
+      }
+   ]
+}

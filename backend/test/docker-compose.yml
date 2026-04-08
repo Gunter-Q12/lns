@@ -1,0 +1,13 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: test/Dockerfile
+    container_name: lns-backend
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - ADDRESS=0.0.0.0:31337
+    ports:
+      - "31337:31337"
+    restart: unless-stopped

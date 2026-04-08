@@ -74,7 +74,7 @@ func createLogger(mode string) (*zap.Logger, error) {
 	var logger *zap.Logger
 	var err error
 	switch mode {
-	case "release":
+	case "release", "":
 		logger, err = zap.NewProduction()
 	case "debug":
 		logger, err = zap.NewDevelopment()
