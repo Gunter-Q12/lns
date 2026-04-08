@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Packet } from "@/types/packet"
 
 interface InputPanelProps {
@@ -15,9 +16,29 @@ interface InputPanelProps {
   listInterfaces: () => Map<string, string[]>;
 }
 
-function InputPanel({handleTrace, listInterfaces}: InputPanelProps) {
-  const [protocol, setProtocol] = useState<string>("arp")
-  const [packet, setPacket] = useState<Packet>({
+const Label = ({ children }: { children: React.ReactNode }) => (
+  <label className="text-sm font-medium leading-none mb-2 block">
+    {children}
+  </label>
+);
+
+const FormGroup = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+  <div className={`grid gap-2 px-1 ${className || ""}`}>
+    {children}
+  </div>
+);
+
+const SectionHeader = ({ children }: { children: React.ReactNode }) => (
+  <div className="mt-4 mb-2 text-sm text-muted-foreground tracking-wider ">
+    {children}
+  </div>
+);
+
+function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
+  const [internetProtocol, setInternetProtocol] = useState<string>("IP")
+  const [transportProtocol, setTransportProtocol] = useState<string>("UDP")
+
+  const [packet, setPacket] = useState<any>({
     senderMac: "",
     targetMac: "",
     srcPort: "",
@@ -29,7 +50,7 @@ function InputPanel({handleTrace, listInterfaces}: InputPanelProps) {
   });
 
   const handleInputChange = (key: string, value: string) => {
-    setPacket(prev => ({ ...prev, [key]: value }));
+    setPacket((prev: any) => ({ ...prev, [key]: value }));
   };
 
   const onTrace = () => handleTrace(packet);
@@ -58,7 +79,7 @@ function InputPanel({handleTrace, listInterfaces}: InputPanelProps) {
   const handleSourceChange = (val: string) => {
     const option = sourceOptions.find((o) => o.value === val);
     if (option) {
-      setPacket((prev) => ({
+      setPacket((prev: any) => ({
         ...prev,
         srcNamespace: option.ns,
         srcInterface: option.iface || "",
@@ -69,128 +90,142 @@ function InputPanel({handleTrace, listInterfaces}: InputPanelProps) {
   return (
     <div className="flex h-full flex-col p-4">
       <h2 className="text-lg font-semibold tracking-tight">Input packet</h2>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Input packet to trace
-      </p>
 
-      <div className="mt-4">
-        <label className="text-sm font-medium leading-none mb-2 block">Source Interface</label>
-        <Select
-          value={packet.srcInterface ? `${packet.srcInterface}:${packet.srcNamespace}` : `process:${packet.srcNamespace}`}
-          onValueChange={handleSourceChange}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select source" />
-          </SelectTrigger>
-          <SelectContent>
-            {sourceOptions.map((opt) => (
-              <SelectItem value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <ScrollArea className="flex-1 -mx-4 px-4 overflow-y-auto pb-4">
+        <div className="mt-4 flex flex-col gap-4">
+          <SectionHeader>Link layer</SectionHeader>
+          <FormGroup>
+            <Label>Source Interface</Label>
+            <Select
+              value={packet.srcInterface
+                ? `${packet.srcInterface}:${packet.srcNamespace}`
+                : `process:${packet.srcNamespace}`}
+              onValueChange={handleSourceChange}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select source" />
+              </SelectTrigger>
+              <SelectContent>
+                {sourceOptions.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </FormGroup>
 
-      <div className="mt-4">
-        <label className="text-sm font-medium leading-none mb-2 block">Protocol</label>
-        <Select value={protocol} onValueChange={setProtocol}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Protocol" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="arp">ARP</SelectItem>
-            <SelectItem value="tcp">TCP</SelectItem>
-            <SelectItem value="udp">UDP</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+          <SectionHeader>Network layer</SectionHeader>
+          <FormGroup>
+            <Label>Sender MAC address</Label>
+            <Input
+              type="text"
+              placeholder="00:00:00:00:00:00"
+              value={packet.senderMac}
+              onChange={(e) => handleInputChange("senderMac", e.target.value)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Target MAC address</Label>
+            <Input
+              type="text"
+              placeholder="00:00:00:00:00:00"
+              value={packet.targetMac}
+              onChange={(e) => handleInputChange("targetMac", e.target.value)}
+            />
+          </FormGroup>
 
-      <div className="mt-6 flex flex-col gap-4">
-        {protocol === "arp" && (
-          <>
-            <div className="grid gap-2">
-              <label className="text-sm font-medium leading-none">
-                Sender hardware address
-              </label>
-              <Input
-                type="text"
-                placeholder="00:00:00:00:00:00"
-                value={packet.senderMac}
-                onChange={(e) => handleInputChange("senderMac", e.target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <label className="text-sm font-medium leading-none">
-                Target hardware address
-              </label>
-              <Input
-                type="text"
-                placeholder="00:00:00:00:00:00"
-                value={packet.targetMac}
-                onChange={(e) => handleInputChange("targetMac", e.target.value)}
-              />
-            </div>
-          </>
-        )}
+          <SectionHeader>Network layer</SectionHeader>
+          <FormGroup>
+            <Label>Protocol</Label>
+            <Select value={internetProtocol} onValueChange={setInternetProtocol}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Protocol" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="arp">ARP</SelectItem>
+                <SelectItem value="ip">IP</SelectItem>
+              </SelectContent>
+            </Select>
+          </FormGroup>
 
-        {(protocol === "tcp" || protocol === "udp") && (
-          <>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <label className="text-sm font-medium leading-none">
-                  Source port
-                </label>
-                <Input
-                  type="number"
-                  placeholder="80"
-                  value={packet.srcPort}
-                  onChange={(e) => handleInputChange("srcPort", e.target.value)}
-                />
+          <FormGroup>
+            <Label>Sender IP address</Label>
+            <Input
+              type="text"
+              placeholder="0.0.0.0"
+              value={packet.srcIp}
+              onChange={(e) => handleInputChange("srcIp", e.target.value)}
+            />
+          </FormGroup>
+          <FormGroup>
+            <Label>Target IP address</Label>
+            <Input
+              type="text"
+              placeholder="0.0.0.0"
+              value={packet.dstIp}
+              onChange={(e) => handleInputChange("dstIp", e.target.value)}
+            />
+          </FormGroup>
+
+          {internetProtocol === "arp" && (
+            <FormGroup>
+              <Label>ARP Operations</Label>
+              <Select value="1">
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Protocol" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1">Request</SelectItem>
+                  <SelectItem value="2">Reply</SelectItem>
+                </SelectContent>
+              </Select>
+            </FormGroup>
+          )}
+
+          {internetProtocol === "ip" && (
+              <FormGroup>
+                <Label>Transport Protocol</Label>
+                <Select value={transportProtocol} onValueChange={setTransportProtocol}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Protocol" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="udp">UDP</SelectItem>
+                    <SelectItem value="tcp">TCP</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormGroup>
+            )}
+
+          {internetProtocol === "ip" && (
+              <div className="grid grid-cols-2">
+                <FormGroup>
+                  <Label>Source port</Label>
+                  <Input
+                    type="number"
+                    placeholder="80"
+                    value={packet.srcPort}
+                    onChange={(e) => handleInputChange("srcPort", e.target.value)}
+                  />
+                </FormGroup>
+                <FormGroup>
+                  <Label>Destination port</Label>
+                  <Input
+                    type="number"
+                    placeholder="443"
+                    value={packet.dstPort}
+                    onChange={(e) => handleInputChange("dstPort", e.target.value)}
+                  />
+                </FormGroup>
               </div>
-              <div className="grid gap-2">
-                <label className="text-sm font-medium leading-none">
-                  Destination port
-                </label>
-                <Input
-                  type="number"
-                  placeholder="443"
-                  value={packet.dstPort}
-                  onChange={(e) => handleInputChange("dstPort", e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="grid gap-2">
-              <label className="text-sm font-medium leading-none">
-                Source IP
-              </label>
-              <Input
-                type="text"
-                placeholder="192.168.1.1"
-                value={packet.srcIp}
-                onChange={(e) => handleInputChange("srcIp", e.target.value)}
-              />
-            </div>
-            <div className="grid gap-2">
-              <label className="text-sm font-medium leading-none">
-                Destination IP
-              </label>
-              <Input
-                type="text"
-                placeholder="192.168.1.2"
-                value={packet.dstIp}
-                onChange={(e) => handleInputChange("dstIp", e.target.value)}
-              />
-            </div>
-          </>
-        )}
-      </div>
+          )}
+        </div>
+      </ScrollArea>
 
-      <div className="mt-auto pt-4">
-        <Button className="w-full" onClick={onTrace}>
-          Trace
-        </Button>
-      </div>
+      <Button className="w-full" onClick={onTrace}>
+        Trace
+      </Button>
     </div>
   )
 }
