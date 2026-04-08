@@ -27,7 +27,7 @@ func (h *Handlers) Get(c *gin.Context) {
 
 	namespace := c.Query("namespace")
 	if namespace != "" {
-		nsCmd = []string{"netns", "--net=" + namespace}
+		nsCmd = []string{"nsenter", "--net=" + namespace}
 	}
 
 	switch c.Param("path") {
