@@ -38,7 +38,7 @@ function App() {
   const [view, setView] = useState<ViewElement[]>([]);
   const [changes, setChanges] = useState<Change[]>([]);
   const { setData: setNftData, getGraph: getNftGraph, tracePacket: traceNftPacket } = useNftActions();
-  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket, listInterfaces } = useAddrActions();
+  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket, listInterfaces, isBridge } = useAddrActions();
   const { setData: setIpData, getGraph: getIpGraph, tracePacket: traceIpPacket } = useIpActions();
 
   function appendView(element: ViewElement) {
