@@ -246,8 +246,33 @@ function App() {
 
 
   function handleTrace(packet: Packet) {
-      const [_, changes] = traceNftPacket(packet);
-      setChanges(changes);
+    // const traceFunctions = [
+    //   traceAddrPacket,
+    //   traceNftPacket,
+    // ];
+
+    let currentPacket = packet;
+    const allChanges: Change[] = [];
+
+    const [nextPacket, changes] = traceAddrPacket(currentPacket);
+    currentPacket = nextPacket;
+    allChanges.push(...changes);
+
+    if (isBridge(packet)) {
+      const [nextPacket, changes] = traceIpPacket(currentPacket);
+      currentPacket = nextPacket;
+      allChanges.push(...changes);
+
+    }
+
+
+    // traceFunctions.forEach(traceFn => {
+    //   const [nextPacket, changes] = traceFn(currentPacket);
+    //   currentPacket = nextPacket;
+    //   allChanges.push(...changes);
+    // });
+
+    setChanges(allChanges);
   }
 
   return (
