@@ -1,3 +1,7 @@
 /target
 scratch
 .vscode
+build
+.venv
+__pycache__
+node_modules
