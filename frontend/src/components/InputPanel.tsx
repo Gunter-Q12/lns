@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Packet } from "@/types/packet"
+import { fi } from "zod/locales"
 
 interface InputPanelProps {
   handleTrace: (packet: Packet) => void;
@@ -35,25 +36,89 @@ const SectionHeader = ({ children }: { children: React.ReactNode }) => (
 );
 
 function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
-  const [internetProtocol, setInternetProtocol] = useState<string>("IP")
-  const [transportProtocol, setTransportProtocol] = useState<string>("UDP")
-
-  const [packet, setPacket] = useState<any>({
-    senderMac: "",
-    targetMac: "",
-    srcPort: "",
-    dstPort: "",
-    srcIp: "",
-    dstIp: "",
-    srcNamespace: "",
-    srcInterface: "",
+  const [internetProtocol, setInternetProtocol] = useState<string>("ip")
+  const [transportProtocol, setTransportProtocol] = useState<string>("udp")
+  // State to track source UI only
+  const [source, setSource] = useState({
+    ns: "",
+    iface: ""
   });
 
-  const handleInputChange = (key: string, value: string) => {
-    setPacket((prev: any) => ({ ...prev, [key]: value }));
+  const [packet, setPacket] = useState<any>({
+    network: {
+      srcMac: "",
+      dstMac: "",
+    },
+    internet: {
+      srcIp: "",
+      dstIp: "",
+      // Placeholder for other internet types, will be handled in onTrace
+    },
+    transport: {
+      srcPort: 0,
+      dstPort: 0,
+    }
+  });
+
+  const handleNetworkChange = (key: string, value: string) => {
+    setPacket((prev: any) => ({
+      ...prev,
+      network: { ...prev.network, [key]: value }
+    }));
   };
 
-  const onTrace = () => handleTrace(packet);
+  const handleInternetChange = (key: string, value: string) => {
+    setPacket((prev: any) => ({
+      ...prev,
+      internet: { ...prev.internet, [key]: value }
+    }));
+  };
+
+  const handleTransportChange = (key: string, value: string) => {
+    setPacket((prev: any) => ({
+      ...prev,
+      transport: { ...prev.transport, [key]: value === "" ? 0 : parseInt(value) }
+    }));
+  };
+
+  const onTrace = () => {
+    // Construct final packet based on current protocol states
+    const finalPacket: any = {
+      network: packet.network,
+      srcInterface: source.iface,
+      srcNamespace: source.ns,
+    };
+
+    if (internetProtocol === "arp") {
+      finalPacket.internet = {
+        operation: "1", // Default to Request for now
+        senderHaradwareAddr: packet.network.srcMac,
+        senderProtocolAddr: packet.internet.srcIp,
+        targetHaradwareAddr: packet.network.dstMac,
+        targetProtocolAddr: packet.internet.dstIp,
+      };
+    } else {
+      // Default to Ipv4 for "ip" protocol
+      finalPacket.internet = {
+        srcIp: packet.internet.srcIp,
+        dstIp: packet.internet.dstIp,
+      };
+
+      if (transportProtocol === "tcp") {
+        finalPacket.transport = {
+          srcPort: packet.transport.srcPort,
+          dstPort: packet.transport.dstPort,
+        };
+      } else if (transportProtocol === "udp") {
+        finalPacket.transport = {
+          srcPort: packet.transport.srcPort,
+          dstPort: packet.transport.dstPort,
+        };
+      }
+    }
+
+    handleTrace(finalPacket);
+  };
 
   const interfacesMap = listInterfaces();
   const sourceOptions: { label: string; value: string; ns: string; iface?: string }[] = [];
@@ -79,11 +144,10 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
   const handleSourceChange = (val: string) => {
     const option = sourceOptions.find((o) => o.value === val);
     if (option) {
-      setPacket((prev: any) => ({
-        ...prev,
-        srcNamespace: option.ns,
-        srcInterface: option.iface || "",
-      }));
+      setSource({
+        ns: option.ns,
+        iface: option.iface || "",
+      });
     }
   };
 
@@ -97,9 +161,9 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
           <FormGroup>
             <Label>Source Interface</Label>
             <Select
-              value={packet.srcInterface
-                ? `${packet.srcInterface}:${packet.srcNamespace}`
-                : `process:${packet.srcNamespace}`}
+              value={source.iface
+                ? `${source.iface}:${source.ns}`
+                : `process:${source.ns}`}
               onValueChange={handleSourceChange}
             >
               <SelectTrigger className="w-full">
@@ -121,8 +185,8 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
             <Input
               type="text"
               placeholder="00:00:00:00:00:00"
-              value={packet.senderMac}
-              onChange={(e) => handleInputChange("senderMac", e.target.value)}
+              value={packet.network.srcMac}
+              onChange={(e) => handleNetworkChange("srcMac", e.target.value)}
             />
           </FormGroup>
           <FormGroup>
@@ -130,8 +194,8 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
             <Input
               type="text"
               placeholder="00:00:00:00:00:00"
-              value={packet.targetMac}
-              onChange={(e) => handleInputChange("targetMac", e.target.value)}
+              value={packet.network.dstMac}
+              onChange={(e) => handleNetworkChange("dstMac", e.target.value)}
             />
           </FormGroup>
 
@@ -154,8 +218,8 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
             <Input
               type="text"
               placeholder="0.0.0.0"
-              value={packet.srcIp}
-              onChange={(e) => handleInputChange("srcIp", e.target.value)}
+              value={packet.internet.srcIp}
+              onChange={(e) => handleInternetChange("srcIp", e.target.value)}
             />
           </FormGroup>
           <FormGroup>
@@ -163,8 +227,8 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
             <Input
               type="text"
               placeholder="0.0.0.0"
-              value={packet.dstIp}
-              onChange={(e) => handleInputChange("dstIp", e.target.value)}
+              value={packet.internet.dstIp}
+              onChange={(e) => handleInternetChange("dstIp", e.target.value)}
             />
           </FormGroup>
 
@@ -205,8 +269,8 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
                   <Input
                     type="number"
                     placeholder="80"
-                    value={packet.srcPort}
-                    onChange={(e) => handleInputChange("srcPort", e.target.value)}
+                    value={packet.transport.srcPort || ""}
+                    onChange={(e) => handleTransportChange("srcPort", e.target.value)}
                   />
                 </FormGroup>
                 <FormGroup>
@@ -214,8 +278,8 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
                   <Input
                     type="number"
                     placeholder="443"
-                    value={packet.dstPort}
-                    onChange={(e) => handleInputChange("dstPort", e.target.value)}
+                    value={packet.transport.dstPort || ""}
+                    onChange={(e) => handleTransportChange("dstPort", e.target.value)}
                   />
                 </FormGroup>
               </div>

@@ -4,6 +4,10 @@ export type Packet = {
     network: Ethernet;
 
     isBridge?: boolean;
+    srcNamespace: string;
+    srcInterface: string;
+    dstNamespace: string;
+    dstInterface: string;
 }
 
 export type Tcp = {
