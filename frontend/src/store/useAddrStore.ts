@@ -10,6 +10,8 @@ type AddrActions = {
   tracePacket: (packet: Packet) => [Packet, Change[]];
   listInterfaces: () => Map<string, string[]>;
   isBridge: (ifname: string, namespace: string) => boolean;
+  isLocal: (packet: Packet) => boolean;
+  doesGoToNamespace: (packet: Packet, namespace: string) => [boolean, Packet, Change[]];
 }
 
 type AddrStore = {
@@ -63,6 +65,13 @@ const useAddrStore = create<AddrStore>((set, get) => ({
         return false;
       }
       return addrData.some(item => item.master === ifname);
+    },
+    isLocal: (packet: Packet): boolean => {
+      // TODO: check against local addresses and interface addresses
+        return true;
+    },
+    doesGoToNamespace: (packet: Packet, namespace: string): [boolean, Packet, Change[]] => {
+      return [false, packet, []];
     }
   }
 }));

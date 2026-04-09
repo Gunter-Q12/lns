@@ -38,7 +38,7 @@ function App() {
   const [view, setView] = useState<ViewElement[]>([]);
   const [changes, setChanges] = useState<Change[]>([]);
   const { setData: setNftData, getGraph: getNftGraph, tracePacket: traceNftPacket } = useNftActions();
-  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket, listInterfaces, isBridge } = useAddrActions();
+  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket, listInterfaces, isBridge, isLocal, doesGoToNamespace } = useAddrActions();
   const { setData: setIpData, getGraph: getIpGraph, tracePacket: traceIpPacket } = useIpActions();
 
   function appendView(element: ViewElement) {
@@ -247,20 +247,79 @@ function App() {
 
 
   function handleTrace(packet: Packet) {
+    let finish = false;
     let currentPacket = packet;
     const allChanges: Change[] = [];
 
+    function currentNamespace(): string {
+      return allChanges.at(-1)?.namespace || "host";
+    }
+
+
     function callNftTrace(hook: string) {
-      const [nextPacket, changes] = traceNftPacket(currentPacket, hook, allChanges.at(-1)?.namespace || "host");
+      const [nextPacket, changes] = traceNftPacket(currentPacket, hook, currentNamespace());
       currentPacket = nextPacket;
       allChanges.push(...changes);
       console.log(`nft changes at hook ${hook}:`, changes)
     }
 
-    function callIpTrace(namespace: string) {
-      const [nextPacket, changes] = traceIpPacket(currentPacket, namespace);
+    function callIpTrace() {
+      const [nextPacket, changes] = traceIpPacket(currentPacket, currentNamespace());
       currentPacket = nextPacket;
       allChanges.push(...changes);
+    }
+
+    function endTrace() {
+      callNftTrace("egress");
+      const [goesNextNamespace, nextPacket, changes] = doesGoToNamespace(currentPacket, currentNamespace());
+      currentPacket = nextPacket;
+      allChanges.push(...changes);
+      if (!goesNextNamespace) {
+        finish = true;
+      }
+    }
+
+    function ingressIpPacketTrace() {
+        callNftTrace("ip_prerouting")
+        callIpTrace();
+        if (isLocal(packet)) {
+          callNftTrace("ip_input")
+          finish = true;
+          return;
+        }
+        callNftTrace("ip_forward")
+        callNftTrace("ip_postrouting")
+
+
+        if (isBridge(packet.dstInterface, currentNamespace())) {
+          callNftTrace("bridge_output");
+          callNftTrace("bridge_postrouting");
+          endTrace();
+        }
+    }
+
+    function localIpPacketTrace() {
+        callIpTrace();
+        callNftTrace("ip_output");
+        callNftTrace("ip_postrouting");
+
+        if (isBridge(packet.dstInterface, currentNamespace())) {
+          callNftTrace("bridge_output");
+          callNftTrace("bridge_postrouting");
+        }
+        endTrace();
+    }
+
+    function bridgePacketTrace() {
+        callNftTrace("bridge_prerouting");
+        if (isLocal(packet)) {
+            callNftTrace("bridge_input")
+            localIpPacketTrace();
+        } else {
+          callNftTrace("bridge_forward")
+          callNftTrace("bridge_postrouting");
+          endTrace()
+        }
     }
 
 
@@ -269,18 +328,25 @@ function App() {
     allChanges.push(...changes);
     console.log("All changes", allChanges)
 
-    if (allChanges.at(-1)?.id == "local_process") {
-      console.error("Not implemented")
-      return
-    }
+    while (!finish) {
 
-    callNftTrace("ingress")
-    if (isBridge(packet.srcInterface, packet.srcNamespace)) {
-      console.error("Not implemented")
-    }
+      if (allChanges.at(-1)?.id == "local_process") {
+        localIpPacketTrace();
+      }
 
-    if (packet.internetProtocol == "arp") {
-      callNftTrace("arp_input");
+      callNftTrace("ingress")
+      if (isBridge(packet.srcInterface, packet.srcNamespace)) {
+        bridgePacketTrace();
+      }
+
+      if (packet.internetProtocol == "ip") {
+        ingressIpPacketTrace();
+      }
+
+      if (packet.internetProtocol == "arp") {
+        callNftTrace("arp_input");
+        finish = true;
+      }
     }
 
 
