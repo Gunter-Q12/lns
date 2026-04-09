@@ -10,7 +10,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Packet } from "@/types/packet"
-import { fi } from "zod/locales"
 
 interface InputPanelProps {
   handleTrace: (packet: Packet) => void;
@@ -87,6 +86,8 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
       network: packet.network,
       srcInterface: source.iface,
       srcNamespace: source.ns,
+      internetProtocol,
+      transportProtocol,
     };
 
     if (internetProtocol === "arp") {

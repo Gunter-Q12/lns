@@ -9,7 +9,7 @@ import { NftResponse } from '@/types/nft';
 type NftActions = {
   setData: (data: Map<string, NftResponse>) => void;
   getGraph: (namespace: string, hook: string) => ElementDefinition[];
-  tracePacket: (packet: Packet) => [Packet, Change[]];
+  tracePacket: (packet: Packet, hook: string, namespace: string) => [Packet, Change[]];
 }
 
 type NftStore = {
@@ -32,11 +32,26 @@ const useNftStore = create<NftStore>((set, get) => ({
       if (!namespaceData) return [];
       return nftToGraph(namespaceData, hook);
     },
-    tracePacket: (packet: Packet): [Packet, Change[]] => {
-      const changes = [
-        { namespace: "host", hook: "ip_prerouting", id: 'stub-node-1', decision: "change" },
-        { namespace: "host", hook: "ip_prerouting", id: 'stub-node-2', decision: "drop" },
-      ];
+    tracePacket: (packet: Packet, hook: string, namespace: string): [Packet, Change[]] => {
+      const namespaceData = get().data.get(namespace);
+      const changes: Change[] = [];
+
+      if (namespaceData) {
+        const hookData = namespaceData.get(hook);
+        if (hookData) {
+          hookData.forEach(([, rules]) => {  // TODO: order by priority
+            rules.forEach((rule) => {
+              changes.push({
+                namespace: namespace,
+                hook: hook,
+                id: `${rule.handle}_rule`,
+                decision: "accept",  // TODO: set proper decision
+              });
+            });
+          });
+        }
+      }
+
       return [packet, changes];
     }
   }

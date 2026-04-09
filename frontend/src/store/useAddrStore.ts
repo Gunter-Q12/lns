@@ -9,7 +9,7 @@ type AddrActions = {
   getGraph: (namespace: string) => ElementDefinition[];
   tracePacket: (packet: Packet) => [Packet, Change[]];
   listInterfaces: () => Map<string, string[]>;
-  isBridge: (packet: Packet) => boolean;
+  isBridge: (ifname: string, namespace: string) => boolean;
 }
 
 type AddrStore = {
@@ -57,13 +57,12 @@ const useAddrStore = create<AddrStore>((set, get) => ({
       }
       return result;
     },
-    isBridge: (packet: Packet): boolean => {
-      const { srcNamespace, srcInterface } = packet;
-      const addrData = get().data.get(srcNamespace || 'host');
-      if (!addrData || !srcInterface) {
+    isBridge: (ifname: string, namespace: string): boolean => {
+      const addrData = get().data.get(namespace || 'host');
+      if (!addrData || !ifname) {
         return false;
       }
-      return addrData.some(item => item.master === srcInterface);
+      return addrData.some(item => item.master === ifname);
     }
   }
 }));

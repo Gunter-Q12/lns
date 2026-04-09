@@ -3,6 +3,9 @@ export type Packet = {
     internet?: Ipv4 | Ipv6 | Arp | Icmp;
     network: Ethernet;
 
+    transportProtocol: string;
+    internetProtocol: string;
+
     isBridge?: boolean;
     srcNamespace: string;
     srcInterface: string;

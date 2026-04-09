@@ -33,7 +33,7 @@ export function restructureNft(root: NftResponse): RestructuredNft {
 
   for (const [key, chain] of chains.entries()) {
     if (chain.hook) {
-      const hook = chain.hook;
+      const hook = `${chain.family}_${chain.hook}`;
       const ruleVec = rules.get(key) || [];
 
       if (!result.has(hook)) {

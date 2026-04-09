@@ -173,6 +173,7 @@ function App() {
         highlightedNodes.push(targetNode);
       }
     });
+    console.log("Highlighted and all nodes", highlightedNodes, graph)
 
     // if (isHostView) {
     //   highlightedNodes.push(cy.getElementById("egress"))
@@ -246,18 +247,43 @@ function App() {
 
 
   function handleTrace(packet: Packet) {
-    // const traceFunctions = [
-    //   traceAddrPacket,
-    //   traceNftPacket,
-    // ];
-
     let currentPacket = packet;
     const allChanges: Change[] = [];
+
+    function callNftTrace(hook: string) {
+      const [nextPacket, changes] = traceNftPacket(currentPacket, hook, allChanges.at(-1)?.namespace || "host");
+      currentPacket = nextPacket;
+      allChanges.push(...changes);
+      console.log(`nft changes at hook ${hook}:`, changes)
+    }
+
+    function callIpTrace(namespace: string) {
+      const [nextPacket, changes] = traceIpPacket(currentPacket, namespace);
+      currentPacket = nextPacket;
+      allChanges.push(...changes);
+    }
+
 
     const [nextPacket, changes] = traceAddrPacket(currentPacket);
     currentPacket = nextPacket;
     allChanges.push(...changes);
     console.log("All changes", allChanges)
+
+    if (allChanges.at(-1)?.id == "local_process") {
+      console.error("Not implemented")
+      return
+    }
+
+    callNftTrace("ingress")
+    if (isBridge(packet.srcInterface, packet.srcNamespace)) {
+      console.error("Not implemented")
+    }
+
+    if (packet.internetProtocol == "arp") {
+      callNftTrace("arp_input");
+    }
+
+
 
     // if (isBridge(packet)) {
     //   const [nextPacket, changes] = traceIpPacket(currentPacket);
