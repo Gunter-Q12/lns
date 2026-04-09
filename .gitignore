@@ -1,7 +1,10 @@
-/target
 scratch
 .vscode
+
+/target
+node_modules
 build
+
 .venv
 __pycache__
-node_modules
+.pytest_cache
