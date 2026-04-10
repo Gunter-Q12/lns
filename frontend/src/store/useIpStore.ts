@@ -24,7 +24,7 @@ const useIpStore = create<IpStore>((set, get) => ({
         if (!namespaceData) return [];
         return ipToGraph(namespaceData);
     },
-    tracePacket: (packet: Packet, namespace: string): [Packet, Change[]] => {
+    tracePacket: (packet: Packet, _: string): [Packet, Change[]] => {
       const changes = [
         { namespace: "host", hook: "routing", id: 'stub-node-ip-1', decision: "forward" },
       ];

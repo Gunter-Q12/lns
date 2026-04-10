@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "build:single": "tsc && VITE_SINGLE_FILE=true vite build --outDir dist-single",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -43,6 +44,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.1",
     "vite": "^7.3.1",
+    "vite-plugin-singlefile": "^2.3.2",
     "vitest": "^4.1.0"
   }
 }

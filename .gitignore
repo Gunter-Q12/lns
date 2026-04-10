@@ -4,6 +4,7 @@ scratch
 /target
 node_modules
 build
+dist-single
 
 .venv
 __pycache__

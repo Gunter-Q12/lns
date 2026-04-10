@@ -56,7 +56,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
 
       set({ data: updatedData });
     },
-    getGraph: (namespace: string): ElementDefinition[] => {
+    getGraph: (_: string): ElementDefinition[] => {
         return addrToGraph(get().data);
     },
     tracePacket: (packet: Packet): [Packet, Change[]] => {
@@ -99,7 +99,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
       }
       return addrData.some(item => item.master === ifname);
     },
-    isLocal: (packet: Packet): boolean => {
+    isLocal: (_: Packet): boolean => {
       // TODO: check against local addresses and interface addresses
         return true;
     },
