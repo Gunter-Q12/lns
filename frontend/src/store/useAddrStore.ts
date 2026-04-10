@@ -22,7 +22,40 @@ type AddrStore = {
 const useAddrStore = create<AddrStore>((set, get) => ({
   data: new Map(),
   actions: {
-    setData: (data) => set({ data }),
+    setData: (data) => {
+      // Create a mutable copy to update fields
+      const updatedData = new Map<string, AddrResponse>();
+
+      // Initialize the updated map with shallow copies of the items to avoid mutating original if it matters
+      // though typically setData is the source of truth.
+      for (const [ns, items] of data.entries()) {
+        updatedData.set(ns, items.map(item => ({ ...item })));
+      }
+
+      // Fill bridgeChildren and vEth fields
+      for (const [_, items] of updatedData.entries()) {
+        for (const item of items) {
+          // bridgeChildren: array of other interfaces in the same namespace with "master" field set to "ifname" of this interface
+          item.bridgeChildren = items
+            .filter(i => i.master === item.ifname)
+            .map(i => i.ifindex);
+
+          // vEthOtherEndNs and vEthOtherEndIfname
+          if (item.link_index) {
+            for (const [otherNs, otherItems] of updatedData.entries()) {
+              const peer = otherItems.find(i => i.ifindex === item.link_index && i.link_index === item.ifindex);
+              if (peer) {
+                item.vEthOtherEndNs = otherNs;
+                item.vEthOtherEndIfname = peer.ifname;
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      set({ data: updatedData });
+    },
     getGraph: (namespace: string): ElementDefinition[] => {
         return addrToGraph(get().data);
     },

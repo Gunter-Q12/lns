@@ -16,7 +16,7 @@ export const addrToGraph = (dataMap: Map<string, AddrResponse>): ElementDefiniti
     });
 
     elements.push(...createBridgeEdges(namespace, data));
-    elements.push(...createVethEdges(namespace, data, dataMap));
+    elements.push(...createVethEdges(namespace, data));
   });
 
   return elements;
@@ -69,20 +69,19 @@ const createBridgeEdges = (
   const edges: ElementDefinition[] = [];
 
   data.forEach((item) => {
-    if (item.master) {
+    if (item.bridgeChildren) {
       const sourceId = interfaceToId(namespace, item.ifindex);
-      const masterItem = data.find(m => m.ifname === item.master);
-      if (masterItem) {
-        const targetId = interfaceToId(namespace, masterItem.ifindex);
+      item.bridgeChildren.forEach((childIfindex) => {
+        const targetId = interfaceToId(namespace, childIfindex);
         edges.push({
           data: {
-            id: `edge-${sourceId}-master-${targetId}`,
-            source: sourceId,
-            target: targetId,
+            id: `edge-${targetId}-master-${sourceId}`,
+            source: targetId,
+            target: sourceId,
             type: 'master-slave'
           }
         });
-      }
+      });
     }
   });
 
@@ -91,34 +90,27 @@ const createBridgeEdges = (
 
 const createVethEdges = (
   namespace: string,
-  data: AddrResponse,
-  dataMap: Map<string, AddrResponse>
+  data: AddrResponse
 ): ElementDefinition[] => {
   const edges: ElementDefinition[] = [];
 
   data.forEach((item) => {
-    if (item.link_index) {
+    if (item.vEthOtherEndNs && item.vEthOtherEndIfname && item.link_index) {
       const sourceId = interfaceToId(namespace, item.ifindex);
+      const targetNamespace = item.vEthOtherEndNs;
+      const targetId = interfaceToId(targetNamespace, item.link_index);
 
-      // Search across all namespaces for the linked interface
-      dataMap.forEach((otherData, otherNamespace) => {
-        otherData.forEach((otherItem) => {
-          if (otherItem.ifindex === item.link_index && otherItem.link_index === item.ifindex) {
-            const targetId = interfaceToId(otherNamespace, otherItem.ifindex);
-            // To avoid double edges, only add if sourceId < targetId
-            if (sourceId < targetId) {
-              edges.push({
-                data: {
-                  id: `edge-${sourceId}-link-${targetId}`,
-                  source: sourceId,
-                  target: targetId,
-                  type: 'veth-link'
-                }
-              });
-            }
+      // To avoid double edges, only add if sourceId < targetId
+      if (sourceId < targetId) {
+        edges.push({
+          data: {
+            id: `edge-${sourceId}-link-${targetId}`,
+            source: sourceId,
+            target: targetId,
+            type: 'veth-link'
           }
         });
-      });
+      }
     }
   });
 

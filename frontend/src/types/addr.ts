@@ -28,6 +28,11 @@ export const AddrItemSchema = z.object({
   link_netnsid: z.number().optional(),
   master: z.string().optional(),
   addr_info: z.array(AddrInfoSchema),
+
+	isBridge: z.boolean().optional(),
+	bridgeChildren: z.array(z.number()).optional(),
+	vEthOtherEndNs: z.string().optional(),
+	vEthOtherEndIfname: z.string().optional(),
 });
 export type AddrItem = z.infer<typeof AddrItemSchema>;
 
