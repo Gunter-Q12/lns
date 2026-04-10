@@ -1,12 +1,12 @@
 [
   { "data": { "id": "interfaces_in", "name": "Interfaces" }, "position": { "x": 100, "y": 620 }, "grabbable": false },
   { "data": { "id": "ingress", "name": "Ingress" }, "position": { "x": 100, "y": 490 }, "grabbable": false },
-  { "data": { "id": "bridge_port_q", "name": "Bridge Port?" }, "position": { "x": 250, "y": 490 } , "grabbable": false },
-  { "data": { "id": "protocol_type_q", "name": "Protocol\nType?" }, "position": { "x": 250, "y": 370 } , "grabbable": false },
+  { "data": { "id": "bridge_port_q", "name": "Bridge Port?", "noninteractive": true }, "position": { "x": 250, "y": 490 } , "grabbable": false },
+  { "data": { "id": "protocol_type_q", "name": "Protocol\nType?", "noninteractive": true }, "position": { "x": 250, "y": 370 } , "grabbable": false },
 
-  { "data": { "id": "local_process", "name": "Local Process" }, "position": { "x": 550, "y": 80 } , "grabbable": false },
+  { "data": { "id": "local_process", "name": "Local Process", "noninteractive": true }, "position": { "x": 550, "y": 80 } , "grabbable": false },
 
-  { "data": { "id": "ip", "name": "IP" } , "grabbable": false },
+  { "data": { "id": "ip", "name": "IP", "noninteractive": true  } , "grabbable": false },
   { "data": { "id": "ip_prerouting", "name": "Prerouting", "parent": "ip" }, "position": { "x": 450, "y": 280 } , "grabbable": false },
   { "data": { "id": "ip_routing_decision", "name": "Routing", "parent": "ip" }, "position": { "x": 550, "y": 280 } , "grabbable": false },
   { "data": { "id": "ip_routing_decision_local", "name": "Routing", "parent": "ip" }, "position": { "x": 650, "y": 180 } , "grabbable": false },
@@ -14,9 +14,9 @@
   { "data": { "id": "ip_output", "name": "Output", "parent": "ip" }, "position": { "x": 750, "y": 180 } , "grabbable": false },
   { "data": { "id": "ip_forward", "name": "Forward", "parent": "ip" }, "position": { "x": 650, "y": 280 } , "grabbable": false },
   { "data": { "id": "ip_postrouting", "name": "Postrouting", "parent": "ip" }, "position": { "x": 750, "y": 280 } , "grabbable": false },
-  { "data": { "id": "bridge_device_q", "name": "Bridge\nDevice?", "parent": "ip" }, "position": { "x": 850, "y": 280 } , "grabbable": false },
+  { "data": { "id": "bridge_device_q", "name": "Bridge\nDevice?", "parent": "ip", "noninteractive": true }, "position": { "x": 850, "y": 280 } , "grabbable": false },
 
-  { "data": { "id": "bridge", "name": "Bridge" } , "grabbable": false },
+  { "data": { "id": "bridge", "name": "Bridge", "noninteractive": true } , "grabbable": false },
   { "data": { "id": "bridge_prerouting", "name": "Prerouting", "parent": "bridge" }, "position": { "x": 450, "y": 490 } , "grabbable": false },
   { "data": { "id": "bridge_input", "name": "Input", "parent": "bridge" }, "position": { "x": 550, "y": 410 } , "grabbable": false },
   { "data": { "id": "bridge_decision", "name": "Routing", "parent": "bridge" }, "position": { "x": 550, "y": 490 } , "grabbable": false },
@@ -24,7 +24,7 @@
   { "data": { "id": "bridge_postrouting", "name": "Postrouting", "parent": "bridge" }, "position": { "x": 850, "y": 490 } , "grabbable": false },
   { "data": { "id": "bridge_output", "name": "Output", "parent": "bridge" }, "position": { "x": 850, "y": 410 } , "grabbable": false },
 
-  { "data": { "id": "arp", "name": "ARP" } , "grabbable": false },
+  { "data": { "id": "arp", "name": "ARP", "noninteractive": true  } , "grabbable": false },
   { "data": { "id": "arp_input", "name": "Input", "parent": "arp" }, "position": { "x": 450, "y": 620 } , "grabbable": false },
   { "data": { "id": "arp_handler", "name": "Handler", "parent": "arp" }, "position": { "x": 650, "y": 620 } , "grabbable": false },
   { "data": { "id": "arp_output", "name": "Output", "parent": "arp" }, "position": { "x": 850, "y": 620 } , "grabbable": false },

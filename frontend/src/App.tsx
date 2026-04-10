@@ -214,14 +214,14 @@ function App() {
       if (cy.container()) cy.container()!.style.cursor = 'default';
     };
 
-    cy.on('tap', 'node', handleTap);
-    cy.on('mouseover', 'node', handleMouseOver);
-    cy.on('mouseout', 'node', handleMouseOut);
+    cy.on('tap', 'node[^noninteractive]', handleTap);
+    cy.on('mouseover', 'node[^noninteractive]', handleMouseOver);
+    cy.on('mouseout', 'node[^noninteractive]', handleMouseOut);
 
     return () => {
-      cy.removeListener('tap', 'node', handleTap);
-      cy.removeListener('mouseover', 'node', handleMouseOver);
-      cy.removeListener('mouseout', 'node', handleMouseOut);
+      cy.removeListener('tap', 'node[^noninteractive]', handleTap);
+      cy.removeListener('mouseover', 'node[^noninteractive]', handleMouseOver);
+      cy.removeListener('mouseout', 'node[^noninteractive]', handleMouseOut);
     };
   }, [cy]);
 
