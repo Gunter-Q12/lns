@@ -83,8 +83,23 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
   };
 
   const onTrace = () => {
+    // Fill default values if empty
+    const updatedPacket = { ...packet };
+    const updatedSource = { ...source };
+
+    // Default MACs
+    if (!updatedPacket.network.srcMac) updatedPacket.network.srcMac = "00:00:00:00:00:01";
+    if (!updatedPacket.network.dstMac) updatedPacket.network.dstMac = "00:00:00:00:00:02";
+
+    // Default IPs
+    if (!updatedPacket.internet.srcIp) updatedPacket.internet.srcIp = "10.0.0.1";
+    if (!updatedPacket.internet.dstIp) updatedPacket.internet.dstIp = "10.0.0.2";
+
+    // Update state to reflect defaults in UI
+    setPacket(updatedPacket);
+
     // Validate MAC addresses
-    if (!AddressMac.isValid(packet.network.srcMac) || !AddressMac.isValid(packet.network.dstMac)) {
+    if (!AddressMac.isValid(updatedPacket.network.srcMac) || !AddressMac.isValid(updatedPacket.network.dstMac)) {
       alert("Please enter valid MAC addresses (e.g., 00:11:22:33:44:55)");
       return;
     }
@@ -92,11 +107,11 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
     // Construct final packet based on current protocol states
     const finalPacket: any = {
       network: {
-        srcMac: new AddressMac(packet.network.srcMac),
-        dstMac: new AddressMac(packet.network.dstMac),
+        srcMac: new AddressMac(updatedPacket.network.srcMac),
+        dstMac: new AddressMac(updatedPacket.network.dstMac),
       },
-      srcInterface: source.iface,
-      srcNamespace: source.ns,
+      srcInterface: updatedSource.iface,
+      srcNamespace: updatedSource.ns,
       internetProtocol,
       transportProtocol,
     };
@@ -104,15 +119,15 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
     if (internetProtocol === "arp") {
       finalPacket.internet = {
         operation: "1", // Default to Request for now
-        senderHaradwareAddr: packet.network.srcMac,
-        senderProtocolAddr: packet.internet.srcIp,
-        targetHaradwareAddr: packet.network.dstMac,
-        targetProtocolAddr: packet.internet.dstIp,
+        senderHaradwareAddr: updatedPacket.network.srcMac,
+        senderProtocolAddr: updatedPacket.internet.srcIp,
+        targetHaradwareAddr: updatedPacket.network.dstMac,
+        targetProtocolAddr: updatedPacket.internet.dstIp,
       };
     } else {
       // Validate and instantiate IP addresses
-      const srcStr = packet.internet.srcIp;
-      const dstStr = packet.internet.dstIp;
+      const srcStr = updatedPacket.internet.srcIp;
+      const dstStr = updatedPacket.internet.dstIp;
 
       if (Address4.isValid(srcStr) && Address4.isValid(dstStr)) {
         finalPacket.internetProtocol = "ipv4";
@@ -131,15 +146,21 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
         return;
       }
 
-      if (transportProtocol === "tcp") {
+      if (transportProtocol === "tcp" || transportProtocol === "udp") {
+        const srcPort = updatedPacket.transport.srcPort || 12345;
+        const dstPort = updatedPacket.transport.dstPort || 80;
+
+        // Update state for ports as well
+        if (updatedPacket.transport.srcPort !== srcPort || updatedPacket.transport.dstPort !== dstPort) {
+          setPacket((prev: any) => ({
+            ...prev,
+            transport: { ...prev.transport, srcPort, dstPort }
+          }));
+        }
+
         finalPacket.transport = {
-          srcPort: packet.transport.srcPort,
-          dstPort: packet.transport.dstPort,
-        };
-      } else if (transportProtocol === "udp") {
-        finalPacket.transport = {
-          srcPort: packet.transport.srcPort,
-          dstPort: packet.transport.dstPort,
+          srcPort,
+          dstPort,
         };
       }
     }
