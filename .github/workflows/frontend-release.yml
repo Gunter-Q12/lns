@@ -31,11 +31,11 @@ jobs:
           npm run build:single
 
       - name: Rename output
-        run: mv frontend/dist-single/index.html lns-viewer-${{ github.event.release.tag_name }}.html
+        run: mv frontend/dist-single/index.html lns-frontend-${{ github.event.release.tag_name }}.html
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
-          files: lns-viewer-${{ github.event.release.tag_name }}.html
+          files: lns-frontend-${{ github.event.release.tag_name }}.html
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
