@@ -5,11 +5,11 @@ import './App.css'
 import { fetchLsns, setBaseUrl, setUseMock } from '@/api';
 
 async function init() {
-  const useMock = import.meta.env.VITE_USE_MOCK_API;
+  const useMock = import.meta.env.VITE_USE_MOCK_API === 'true' || import.meta.env.DEV;
   const baseUrl = import.meta.env.VITE_API_Base_URL;
 
   // Set initial state from env
-  setUseMock(useMock === 'true' || import.meta.env.DEV);
+  setUseMock(useMock);
   if (baseUrl) {
     setBaseUrl(baseUrl);
   }
