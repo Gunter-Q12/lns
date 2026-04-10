@@ -328,25 +328,34 @@ function App() {
     allChanges.push(...changes);
     console.log("All changes", allChanges)
 
-    while (!finish) {
+    let cnt = 0;
+    while (!finish && cnt < 100) {
+      cnt += 1;
 
       if (allChanges.at(-1)?.id == "local_process") {
         localIpPacketTrace();
+        continue;
       }
 
       callNftTrace("ingress")
       if (isBridge(packet.srcInterface, packet.srcNamespace)) {
         bridgePacketTrace();
+        continue;
       }
 
       if (packet.internetProtocol == "ip") {
         ingressIpPacketTrace();
+        continue;
       }
 
       if (packet.internetProtocol == "arp") {
         callNftTrace("arp_input");
         finish = true;
+        continue;
       }
+    }
+    if (cnt >= 100) {
+      console.error("INFINITE LOOP DETECTED")
     }
 
 
