@@ -9,7 +9,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Packet } from "@/types/packet"
+import { Packet, isIpValid } from "@/types/packet"
+import { Address4, Address6 } from 'ip-address';
 
 interface InputPanelProps {
   handleTrace: (packet: Packet) => void;
@@ -99,11 +100,26 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
         targetProtocolAddr: packet.internet.dstIp,
       };
     } else {
-      // Default to Ipv4 for "ip" protocol
-      finalPacket.internet = {
-        srcIp: packet.internet.srcIp,
-        dstIp: packet.internet.dstIp,
-      };
+      // Validate and instantiate IP addresses
+      const srcStr = packet.internet.srcIp;
+      const dstStr = packet.internet.dstIp;
+
+      if (Address4.isValid(srcStr) && Address4.isValid(dstStr)) {
+        finalPacket.internetProtocol = "ipv4";
+        finalPacket.internet = {
+          srcIp: new Address4(srcStr),
+          dstIp: new Address4(dstStr),
+        };
+      } else if (Address6.isValid(srcStr) && Address6.isValid(dstStr)) {
+        finalPacket.internetProtocol = "ipv6";
+        finalPacket.internet = {
+          srcIp: new Address6(srcStr),
+          dstIp: new Address6(dstStr),
+        };
+      } else {
+        alert("Please enter valid and matching IPv4 or IPv6 addresses (e.g., 10.0.0.1 or 2001:db8::1)");
+        return;
+      }
 
       if (transportProtocol === "tcp") {
         finalPacket.transport = {
@@ -151,6 +167,9 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
       });
     }
   };
+
+  const srcIpValid = packet.internet.srcIp === "" || isIpValid(packet.internet.srcIp);
+  const dstIpValid = packet.internet.dstIp === "" || isIpValid(packet.internet.dstIp);
 
   return (
     <div className="flex h-full flex-col p-4">
@@ -218,19 +237,31 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
             <Label>Sender IP address</Label>
             <Input
               type="text"
-              placeholder="0.0.0.0"
+              placeholder="10.0.0.1 or 2001:db8::1"
               value={packet.internet.srcIp}
+              className={!srcIpValid ? "border-destructive focus-visible:ring-destructive" : ""}
               onChange={(e) => handleInternetChange("srcIp", e.target.value)}
             />
+            {!srcIpValid && (
+              <p className="text-[0.8rem] font-medium text-destructive">
+                Invalid IP address (v4 or v6)
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>Target IP address</Label>
             <Input
               type="text"
-              placeholder="0.0.0.0"
+              placeholder="10.0.0.1 or 2001:db8::1"
               value={packet.internet.dstIp}
+              className={!dstIpValid ? "border-destructive focus-visible:ring-destructive" : ""}
               onChange={(e) => handleInternetChange("dstIp", e.target.value)}
             />
+            {!dstIpValid && (
+              <p className="text-[0.8rem] font-medium text-destructive">
+                Invalid IP address (v4 or v6)
+              </p>
+            )}
           </FormGroup>
 
           {internetProtocol === "arp" && (

@@ -1,3 +1,5 @@
+import { Address4, Address6 } from 'ip-address';
+
 export type Packet = {
     transport?: Tcp | Udp;
     internet?: Ipv4 | Ipv6 | Arp | Icmp;
@@ -39,16 +41,16 @@ export type Ipv4 = {
     typeOfService?: number;
     timeToLive?: number;
 
-    srcIp: string;
-    dstIp: string;
+    srcIp: Address4;
+    dstIp: Address4;
 }
 
 export type Ipv6 = {
     trafficClass?: number;
     hopLimit?: number;
 
-    srcIp: string;
-    dstIp: string;
+    srcIp: Address6;
+    dstIp: Address6;
 }
 
 export type Ethernet = {
@@ -63,3 +65,8 @@ export type Change = {
     decision: string;  // TODO: probably convert to enum
     description?: string;
 }
+
+
+export const isIpValid = (ip: string) => {
+  return Address4.isValid(ip) || Address6.isValid(ip);
+};
