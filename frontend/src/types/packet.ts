@@ -1,4 +1,5 @@
 import { Address4, Address6 } from 'ip-address';
+import { AddressMac } from './mac';
 
 export type Packet = {
     transport?: Tcp | Udp;
@@ -54,8 +55,8 @@ export type Ipv6 = {
 }
 
 export type Ethernet = {
-    srcMac: string;
-    dstMac: string;
+    srcMac: AddressMac;
+    dstMac: AddressMac;
 }
 
 export type Change = {

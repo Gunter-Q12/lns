@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Packet, isIpValid } from "@/types/packet"
 import { Address4, Address6 } from 'ip-address';
+import { AddressMac } from "@/types/mac";
 
 interface InputPanelProps {
   handleTrace: (packet: Packet) => void;
@@ -82,9 +83,18 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
   };
 
   const onTrace = () => {
+    // Validate MAC addresses
+    if (!AddressMac.isValid(packet.network.srcMac) || !AddressMac.isValid(packet.network.dstMac)) {
+      alert("Please enter valid MAC addresses (e.g., 00:11:22:33:44:55)");
+      return;
+    }
+
     // Construct final packet based on current protocol states
     const finalPacket: any = {
-      network: packet.network,
+      network: {
+        srcMac: new AddressMac(packet.network.srcMac),
+        dstMac: new AddressMac(packet.network.dstMac),
+      },
       srcInterface: source.iface,
       srcNamespace: source.ns,
       internetProtocol,
@@ -171,6 +181,9 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
   const srcIpValid = packet.internet.srcIp === "" || isIpValid(packet.internet.srcIp);
   const dstIpValid = packet.internet.dstIp === "" || isIpValid(packet.internet.dstIp);
 
+  const srcMacValid = packet.network.srcMac === "" || AddressMac.isValid(packet.network.srcMac);
+  const dstMacValid = packet.network.dstMac === "" || AddressMac.isValid(packet.network.dstMac);
+
   return (
     <div className="flex h-full flex-col p-4">
       <h2 className="text-lg font-semibold tracking-tight">Input packet</h2>
@@ -206,8 +219,14 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
               type="text"
               placeholder="00:00:00:00:00:00"
               value={packet.network.srcMac}
+              className={!srcMacValid ? "border-destructive focus-visible:ring-destructive" : ""}
               onChange={(e) => handleNetworkChange("srcMac", e.target.value)}
             />
+            {!srcMacValid && (
+              <p className="text-[0.8rem] font-medium text-destructive">
+                Invalid MAC address
+              </p>
+            )}
           </FormGroup>
           <FormGroup>
             <Label>Target MAC address</Label>
@@ -215,8 +234,14 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
               type="text"
               placeholder="00:00:00:00:00:00"
               value={packet.network.dstMac}
+              className={!dstMacValid ? "border-destructive focus-visible:ring-destructive" : ""}
               onChange={(e) => handleNetworkChange("dstMac", e.target.value)}
             />
+            {!dstMacValid && (
+              <p className="text-[0.8rem] font-medium text-destructive">
+                Invalid MAC address
+              </p>
+            )}
           </FormGroup>
 
           <SectionHeader>Network layer</SectionHeader>
