@@ -4,10 +4,17 @@ import { LsnsResponse } from '@/types/lsns';
 import * as mockClient from './mockClient';
 import * as realClient from './realClient';
 
-// Determine which client to use based on environment variable
-const useMock = import.meta.env.VITE_USE_MOCK_API === 'true' || import.meta.env.DEV;
+// These will be initialized from main.tsx
+let useMock = false;
+let baseUrl = '/api';
 
-const baseUrl = import.meta.env.VITE_API_Base_URL || '/api';
+export const setBaseUrl = (url: string) => {
+  baseUrl = url;
+};
+
+export const setUseMock = (mock: boolean) => {
+  useMock = mock;
+};
 
 export const fetchNft = (namespace?: string) =>
   useMock ? mockClient.mockFetchNft(baseUrl, namespace) : realClient.fetchNft(baseUrl, namespace);
