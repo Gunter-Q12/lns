@@ -104,6 +104,39 @@ const useAddrStore = create<AddrStore>((set, get) => ({
         return true;
     },
     doesGoToNamespace: (packet: Packet, namespace: string): [boolean, Packet, Change[]] => {
+      const { dstInterface } = packet;
+      if (!dstInterface) {
+        return [false, packet, []];
+      }
+
+      const addrData = get().data.get(namespace || 'host');
+      const item = addrData?.find(i => i.ifname === dstInterface);
+
+      if (item?.vEthOtherEndNs && item?.vEthOtherEndIfname) {
+        const nextPacket = {
+          ...packet,
+          srcNamespace: item.vEthOtherEndNs,
+          srcInterface: item.vEthOtherEndIfname
+        };
+
+        const changes: Change[] = [
+          {
+            namespace: item.vEthOtherEndNs,
+            hook: "interfaces_in",
+            id: interfaceToId(namespace || 'host', item.ifindex),
+            decision: "accept",
+          },
+          {
+            namespace: item.vEthOtherEndNs,
+            hook: "interfaces_in",
+            id: interfaceToId(item.vEthOtherEndNs, item.link_index!), // We know link_index is set if vEth fields are set
+            decision: "accept",
+          }
+        ];
+
+        return [true, nextPacket, changes];
+      }
+
       return [false, packet, []];
     }
   }
