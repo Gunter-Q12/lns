@@ -23,6 +23,13 @@ export const preprocessIp = (data: IpResponse): ProcessedIp => {
     routes[table].push(route);
   });
 
+  // Ensure tables referenced in rules also exist in routes map
+  rules.forEach((rule) => {
+    if (!routes[rule.table]) {
+      routes[rule.table] = [];
+    }
+  });
+
   return {
     rules,
     routes,

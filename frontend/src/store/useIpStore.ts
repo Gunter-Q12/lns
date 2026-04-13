@@ -3,6 +3,7 @@ import { ElementDefinition } from 'cytoscape';
 import { IpResponse } from '@/types/ip';
 import { Packet, Change } from '@/types/packet';
 import { ipToGraph } from './transformers/ipToGraph';
+import { ProcessedIp, preprocessIp } from './preprocess/ipPreprocess';
 
 type IpActions = {
   setData: (data: Map<string, IpResponse>) => void;
@@ -11,14 +12,20 @@ type IpActions = {
 }
 
 type IpStore = {
-  data: Map<string, IpResponse>;
+  data: Map<string, ProcessedIp>;
   actions: IpActions;
 }
 
 const useIpStore = create<IpStore>((set, get) => ({
   data: new Map(),
   actions: {
-    setData: (data) => set({ data }),
+    setData: (data) => {
+      const processedData = new Map<string, ProcessedIp>();
+      data.forEach((value, key) => {
+        processedData.set(key, preprocessIp(value));
+      });
+      set({ data: processedData });
+    },
     getGraph: (namespace: string): ElementDefinition[] => {
         const namespaceData = get().data.get(namespace);
         if (!namespaceData) return [];

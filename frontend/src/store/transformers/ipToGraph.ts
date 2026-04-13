@@ -1,8 +1,8 @@
 import { ElementDefinition } from 'cytoscape';
-import { IpResponse } from '@/types/ip';
+import { ProcessedIp } from '../preprocess/ipPreprocess';
 
 /**
- * Converts IpResponse (rules and routes) into Cytoscape ElementDefinitions.
+ * Converts ProcessedIp (rules and routes) into Cytoscape ElementDefinitions.
  *
  * Rules: Each rule is a node. Name includes src and dst (if present).
  * Tables: Each referenced table is a node.
@@ -10,11 +10,11 @@ import { IpResponse } from '@/types/ip';
  *         Name includes dst and dev.
  * Edges: From rules to the tables they point to.
  */
-export const ipToGraph = (data: IpResponse): ElementDefinition[] => {
+export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
   const elements: ElementDefinition[] = [];
   const tables = new Set<string>();
 
-  // 1. Process Rules
+  // 1. Process Rules (already sorted in data.rules)
   data.rules.forEach((rule, index) => {
     const ruleId = `rule-${rule.priority}-${index}`;
     const src = rule.src;
@@ -33,7 +33,7 @@ export const ipToGraph = (data: IpResponse): ElementDefinition[] => {
     // Track table for node creation
     tables.add(rule.table);
 
-    // Edge from Rule to Table
+    // Edge from Rule to Table (create table node later)
     elements.push({
       data: {
         id: `edge-${ruleId}-to-${rule.table}`,
@@ -43,42 +43,30 @@ export const ipToGraph = (data: IpResponse): ElementDefinition[] => {
     });
   });
 
-  // 2. Process Tables (as parent nodes for routes)
-  tables.forEach(tableName => {
+  // 2. Process Routes and create Table nodes
+  Object.entries(data.routes).forEach(([tableName, routes]) => {
+    const tableId = `table-${tableName}`;
+
     elements.push({
       data: {
-        id: `table-${tableName}`,
+        id: tableId,
         name: `${tableName}`,
         type: 'table'
       }
     });
-  });
 
-  // 3. Process Routes
-  data.routes.forEach((route, index) => {
-    const tableId = `table-${route.table || 'main'}`; // Default to main if not specified
-    const routeId = `route-${index}`;
-    const name = `${route.dst} via ${route.dev}`;
+    routes.forEach((route, index) => {
+      const routeId = `route-${tableName}-${index}`;
+      const name = `${route.dst} via ${route.dev}`;
 
-    // Ensure the table node exists if a route references it but no rule did
-    if (!tables.has(route.table || 'main')) {
-        tables.add(route.table || 'main');
-        elements.push({
-            data: {
-                id: tableId,
-                name: `Table: ${route.table || 'main'}`,
-                type: 'table'
-            }
-        });
-    }
-
-    elements.push({
-      data: {
-        id: routeId,
-        name: name,
-        parent: tableId,
-        type: 'route'
-      }
+      elements.push({
+        data: {
+          id: routeId,
+          name: name,
+          parent: tableId,
+          type: 'route'
+        }
+      });
     });
   });
 
