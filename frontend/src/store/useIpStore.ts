@@ -9,7 +9,7 @@ import { traceIp } from './trace/ipTrace';
 type IpActions = {
   setData: (data: Map<string, IpResponse>) => void;
   getGraph: (namespace: string) => ElementDefinition[];
-  tracePacket: (packet: Packet, namespace: string) => [Packet, Change[]];
+  tracePacket: (packet: Packet, namespace: string, hook: string) => [Packet, Change[]];
 }
 
 type IpStore = {
@@ -32,13 +32,13 @@ const useIpStore = create<IpStore>((set, get) => ({
         if (!namespaceData) return [];
         return ipToGraph(namespaceData);
     },
-    tracePacket: (packet: Packet, namespace: string): [Packet, Change[]] => {
+    tracePacket: (packet: Packet, namespace: string, hook: string): [Packet, Change[]] => {
       const namespaceData = get().data.get(namespace);
       if (!namespaceData) {
         return [packet, []];
       }
       const traceResult = traceIp(packet, namespaceData);
-      return translateTraceResult(traceResult, namespaceData);
+      return translateTraceResult(traceResult, namespaceData, namespace, hook);
     }
   }
 }));

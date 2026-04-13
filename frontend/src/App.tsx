@@ -263,8 +263,8 @@ function App() {
       console.log(`nft changes at hook ${hook}:`, changes)
     }
 
-    function callIpTrace() {
-      const [nextPacket, changes] = traceIpPacket(currentPacket, currentNamespace());
+    function callIpTrace(hook: string) {
+      const [nextPacket, changes] = traceIpPacket(currentPacket, currentNamespace(), hook);
       currentPacket = nextPacket;
       allChanges.push(...changes);
     }
@@ -281,7 +281,7 @@ function App() {
 
     function ingressIpPacketTrace() {
         callNftTrace("ip_prerouting")
-        callIpTrace();
+        callIpTrace("ip_routing_decision");
         if (isLocal(packet)) {
           callNftTrace("ip_input")
           finish = true;
@@ -299,7 +299,7 @@ function App() {
     }
 
     function localIpPacketTrace() {
-        callIpTrace();
+        callIpTrace("ip_routing_decision_local");
         callNftTrace("ip_output");
         callNftTrace("ip_postrouting");
 
@@ -343,16 +343,15 @@ function App() {
         continue;
       }
 
-      if (packet.internetProtocol == "ip") {
-        ingressIpPacketTrace();
-        continue;
-      }
-
-      if (packet.internetProtocol == "arp") {
+      if (packet.isArp) {
         callNftTrace("arp_input");
         finish = true;
         continue;
       }
+
+      ingressIpPacketTrace();
+      continue;
+
     }
     if (cnt >= 100) {
       console.error("INFINITE LOOP DETECTED")

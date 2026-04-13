@@ -84,7 +84,9 @@ export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
  */
 export const translateTraceResult = (
   result: TraceResult,
-  data: ProcessedIp
+  data: ProcessedIp,
+  namespace: string,
+  hook: string,
 ): [Packet, Change[]] => {
   const changes: Change[] = [];
 
@@ -94,10 +96,10 @@ export const translateTraceResult = (
     const index = data.rules.indexOf(rule);
     if (index !== -1) {
       changes.push({
-        namespace: result.packet.srcNamespace, // Best guess for namespace
-        hook: 'ip-rule',
+        namespace: namespace,
+        hook: hook,
         id: getRuleId(rule.priority, index),
-        decision: 'MATCH'
+        decision: 'other'
       });
     }
   });
@@ -111,10 +113,10 @@ export const translateTraceResult = (
 
     if (index !== -1) {
       changes.push({
-        namespace: result.packet.srcNamespace,
-        hook: 'ip-route',
+        namespace: namespace,
+        hook: hook,
         id: getRouteId(tableName, index),
-        decision: 'MATCH',
+        decision: 'other',
         description: `Routed via ${route.dev}`
       });
     }

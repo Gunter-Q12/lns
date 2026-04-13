@@ -65,8 +65,6 @@ export const traceIp = (packet: Packet, data: ProcessedIp): TraceResult => {
         const dstMatch = ipInParsedAddress(dstIp, rule.dst);
 
         if (srcMatch && dstMatch) {
-            appliedRules.push(rule);
-
             // 2. Perform table lookup
             const tableRoutes = data.routes[rule.table] || [];
             const bestRoute = lookupRoute(dstIp, isV6, tableRoutes);
@@ -76,6 +74,7 @@ export const traceIp = (packet: Packet, data: ProcessedIp): TraceResult => {
                 if (bestRoute.dev) {
                     updatedPacket.srcInterface = bestRoute.dev;
                 }
+                appliedRules.push(rule);
 
                 return {
                     packet: updatedPacket,
