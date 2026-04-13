@@ -12,6 +12,8 @@ export const RouteItemSchema = z.object({
   table: z.string().optional(),
   metric: z.number().optional(),
   pref: z.string().optional(),
+
+  isV6: z.boolean().optional()
 });
 export type RouteItem = z.infer<typeof RouteItemSchema>;
 
@@ -20,6 +22,8 @@ export const RuleItemSchema = z.object({
   src: z.string(),
   dst: z.string().optional(),
   table: z.string(),
+
+  isV6: z.boolean().optional()
 });
 export type RuleItem = z.infer<typeof RuleItemSchema>;
 

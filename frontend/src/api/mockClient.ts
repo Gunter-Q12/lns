@@ -14,28 +14,31 @@ export async function mockFetchNft(_baseUrl: string, namespace?: string): Promis
 }
 
 export async function mockFetchRoute(_baseUrl: string, namespace?: string): Promise<IpResponse> {
-  let routeModule, rule4Module, rule6Module;
+  let route4Module, route6Module, rule4Module, rule6Module;
 
   if (namespace === "/run/docker/netns/94ba6f52f019") {
-    [routeModule, rule4Module, rule6Module] = await Promise.all([
+    [route4Module, route6Module, rule4Module, rule6Module] = await Promise.all([
+      import('./__tests__/fixtures/route/docker.json'),
       import('./__tests__/fixtures/route/docker.json'),
       import('./__tests__/fixtures/rule/docker4.json'),
       import('./__tests__/fixtures/rule/docker6.json'),
     ]);
   } else {
-    [routeModule, rule4Module, rule6Module] = await Promise.all([
-      import('./__tests__/fixtures/route/route.json'),
+    [route4Module, route6Module, rule4Module, rule6Module] = await Promise.all([
+      import('./__tests__/fixtures/route/route4.json'),
+      import('./__tests__/fixtures/route/route6.json'),
       import('./__tests__/fixtures/rule/rule4.json'),
       import('./__tests__/fixtures/rule/rule6.json'),
     ]);
   }
 
-  const routes = RouteResponseSchema.parse(routeModule.default);
-  const rules4 = RuleResponseSchema.parse(rule4Module.default);
-  const rules6 = RuleResponseSchema.parse(rule6Module.default);
+  const routes4 = RouteResponseSchema.parse(route4Module.default).map(r => ({ ...r, isV6: false }));
+  const routes6 = RouteResponseSchema.parse(route6Module.default).map(r => ({ ...r, isV6: true }));
+  const rules4 = RuleResponseSchema.parse(rule4Module.default).map(r => ({ ...r, isV6: false }));
+  const rules6 = RuleResponseSchema.parse(rule6Module.default).map(r => ({ ...r, isV6: true }));
 
   return {
-    routes,
+    routes: [...routes4, ...routes6],
     rules: [...rules4, ...rules6],
   };
 }
