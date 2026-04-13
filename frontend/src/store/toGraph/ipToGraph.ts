@@ -17,8 +17,8 @@ export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
   // 1. Process Rules (already sorted in data.rules)
   data.rules.forEach((rule, index) => {
     const ruleId = `rule-${rule.priority}-${index}`;
-    const src = rule.src;
-    const dst = rule.dst ? ` to ${rule.dst}` : '';
+    const src = rule.src ? `${rule.src.label}` : ''
+    const dst = rule.dst ? ` to ${rule.dst.label}` : '';
     const name = `${src}${dst}`;
 
     elements.push({
@@ -57,7 +57,7 @@ export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
 
     routes.forEach((route, index) => {
       const routeId = `route-${tableName}-${index}`;
-      const name = `${route.dst} via ${route.dev}`;
+      const name = `${route.dst.label} via ${route.dev}`;
 
       elements.push({
         data: {
