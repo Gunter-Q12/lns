@@ -7,6 +7,11 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { Change } from '@/types/packet';
 import { cn } from "@/lib/utils";
 import { ViewElement } from "@/types/view";
@@ -28,7 +33,7 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Change</TableHead>
+                <TableHead>Rule</TableHead>
                 <TableHead>Decision</TableHead>
               </TableRow>
             </TableHeader>
@@ -48,7 +53,20 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
                   }
                 >
                   <TableCell className="font-medium">
-                    {change.decision}
+                    {change.description ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help underline decoration-dotted underline-offset-4 decoration-muted-foreground/50">
+                            {change.id}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side={"left"}>
+                          <p>{change.description}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      change.id
+                    )}
                   </TableCell>
                   <TableCell>
                     <span className={cn(

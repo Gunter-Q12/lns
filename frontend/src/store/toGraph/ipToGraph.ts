@@ -101,6 +101,14 @@ export const translateTraceResult = (
         id: getRuleId(rule.priority, index),
         decision: 'other'
       });
+
+      // Highlight the table this rule points to
+      changes.push({
+        namespace: namespace,
+        hook: hook,
+        id: getTableId(rule.table),
+        decision: 'other'
+      });
     }
   });
 

@@ -7,6 +7,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
+import { TooltipProvider } from "@/components/ui/tooltip"
 
 // Register the cose-bilkent layout extension
 cytoscapeInstance.use(coseBilkent);
@@ -377,30 +378,32 @@ function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">
-      <main className="flex-1 min-h-0 min-w-0">
-        <ResizablePanelGroup orientation="horizontal" className="h-full">
-          <ResizablePanel defaultSize={25} minSize={15}>
-            <InputPanel handleTrace={handleTrace} listInterfaces={listInterfaces} />
-          </ResizablePanel>
+    <TooltipProvider>
+      <div className="flex flex-col h-screen w-screen overflow-hidden bg-background">
+        <main className="flex-1 min-h-0 min-w-0">
+          <ResizablePanelGroup orientation="horizontal" className="h-full">
+            <ResizablePanel defaultSize={25} minSize={15}>
+              <InputPanel handleTrace={handleTrace} listInterfaces={listInterfaces} />
+            </ResizablePanel>
 
-          <ResizableHandle withHandle />
+            <ResizableHandle withHandle />
 
-          <ResizablePanel defaultSize={75} className="relative bg-muted/20 flex flex-col">
-            <BreadcrumbSection view={view} setView={setView} />
-            <div className="flex-1 min-h-0">
-              <GraphCanvas elements={graph} stylesheet={customStylesheet} cy={setCy} />
-            </div>
-          </ResizablePanel>
+            <ResizablePanel defaultSize={75} className="relative bg-muted/20 flex flex-col">
+              <BreadcrumbSection view={view} setView={setView} />
+              <div className="flex-1 min-h-0">
+                <GraphCanvas elements={graph} stylesheet={customStylesheet} cy={setCy} />
+              </div>
+            </ResizablePanel>
 
-          <ResizableHandle withHandle />
+            <ResizableHandle withHandle />
 
-          <ResizablePanel defaultSize={25} minSize={15}>
-            <RoutePanel changes={changes} setView={setView} />
-          </ResizablePanel>
-        </ResizablePanelGroup>
-      </main>
-    </div>
+            <ResizablePanel defaultSize={25} minSize={15}>
+              <RoutePanel changes={changes} setView={setView} />
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </main>
+      </div>
+    </TooltipProvider>
   );
 }
 
