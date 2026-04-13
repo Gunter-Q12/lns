@@ -3,7 +3,7 @@ import { AddressMac } from './mac';
 
 export type Packet = {
     transport?: Tcp | Udp | Icmp;
-    internet?: Ipv4 | Ipv6 | Arp;
+    internet: Ipv4 | Ipv6 | Arp;
     network: Ethernet;
 
     isArp: boolean;
@@ -28,10 +28,10 @@ export type Udp = {
 
 export type Arp = {
     operation: string;
-    srcMac: string
-    srcIp: string
-    dstMac: string
-    dstIp: string
+    srcMac: string;
+    srcIp: Address4 | Address6;
+    dstMac: string;
+    dstIp: Address4 | Address6;
 };
 
 export type Icmp = {

@@ -119,12 +119,32 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
 
     if (internetProtocol === "arp") {
       finalPacket.isArp = true;
+
+      // Validate and instantiate IP addresses for ARP
+      const srcStr = updatedPacket.internet.srcIp;
+      const dstStr = updatedPacket.internet.dstIp;
+      let srcIp: Address4 | Address6;
+      let dstIp: Address4 | Address6;
+
+      if (Address4.isValid(srcStr) && Address4.isValid(dstStr)) {
+        srcIp = new Address4(srcStr);
+        dstIp = new Address4(dstStr);
+        finalPacket.isV6 = false;
+      } else if (Address6.isValid(srcStr) && Address6.isValid(dstStr)) {
+        srcIp = new Address6(srcStr);
+        dstIp = new Address6(dstStr);
+        finalPacket.isV6 = true;
+      } else {
+        alert("Please enter valid and matching IPv4 or IPv6 addresses for ARP");
+        return;
+      }
+
       finalPacket.internet = {
         operation: "1", // Default to Request for now
-        senderHaradwareAddr: updatedPacket.network.srcMac,
-        senderProtocolAddr: updatedPacket.internet.srcIp,
-        targetHaradwareAddr: updatedPacket.network.dstMac,
-        targetProtocolAddr: updatedPacket.internet.dstIp,
+        srcMac: updatedPacket.network.srcMac,
+        srcIp,
+        dstMac: updatedPacket.network.dstMac,
+        dstIp,
       };
     } else {
       // Validate and instantiate IP addresses
