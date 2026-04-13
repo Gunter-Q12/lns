@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { ElementDefinition } from 'cytoscape';
 import { AddrResponse } from '@/types/addr';
 import { Packet, Change } from '@/types/packet';
-import { addrToGraph, interfaceToId } from './transformers/addrToGraph';
+import { addrToGraph, interfaceToId } from './toGraph/addrToGraph';
 
 type AddrActions = {
   setData: (data: Map<string, AddrResponse>) => void;

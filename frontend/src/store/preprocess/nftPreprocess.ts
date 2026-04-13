@@ -4,13 +4,13 @@ import { NftResponse, ChainDef, RuleDef } from '@/types/nft';
  * Maps represented as follows:
  * result: Map<hookName, Map<chainName, [chainDef, ruleDefs[]]>>  #TODO: create aliases
  */
-export type RestructuredNft = Map<string, Map<string, [ChainDef, RuleDef[]]>>;
+export type ProcessedNft = Map<string, Map<string, [ChainDef, RuleDef[]]>>;
 
 /**
  * Restructure the parsed nftables data into a mapping from hook names to mappings
  * from chain names to pairs of chain definitions and their rules.
  */
-export function restructureNft(root: NftResponse): RestructuredNft {
+export function restructureNft(root: NftResponse): ProcessedNft {
   const chains = new Map<string, ChainDef>();
   const rules = new Map<string, RuleDef[]>();
 
@@ -29,7 +29,7 @@ export function restructureNft(root: NftResponse): RestructuredNft {
     }
   }
 
-  const result: RestructuredNft = new Map();
+  const result: ProcessedNft = new Map();
 
   for (const [key, chain] of chains.entries()) {
     if (chain.hook) {

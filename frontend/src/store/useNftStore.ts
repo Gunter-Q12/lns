@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { ElementDefinition } from 'cytoscape';
 
-import { RestructuredNft, restructureNft } from './transformers/nftTransformer';
-import { nftToGraph } from './transformers/nftToGraph';
+import { ProcessedNft, restructureNft } from './preprocess/nftPreprocess';
+import { nftToGraph } from './toGraph/nftToGraph';
 import { Packet, Change } from '@/types/packet';
 import { NftResponse } from '@/types/nft';
 
@@ -13,7 +13,7 @@ type NftActions = {
 }
 
 type NftStore = {
-  data: Map<string, RestructuredNft>;
+  data: Map<string, ProcessedNft>;
   actions: NftActions
 }
 
@@ -21,7 +21,7 @@ const useNftStore = create<NftStore>((set, get) => ({
   data: new Map(),
   actions: {
     setData: (data) => {
-      const restructuredData = new Map<string, RestructuredNft>();
+      const restructuredData = new Map<string, ProcessedNft>();
       data.forEach((val, key) => {
         restructuredData.set(key, restructureNft(val));
       });

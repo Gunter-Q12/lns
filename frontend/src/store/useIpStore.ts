@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { ElementDefinition } from 'cytoscape';
 import { IpResponse } from '@/types/ip';
 import { Packet, Change } from '@/types/packet';
-import { ipToGraph } from './transformers/ipToGraph';
+import { ipToGraph } from './toGraph/ipToGraph';
 import { ProcessedIp, preprocessIp } from './preprocess/ipPreprocess';
 
 type IpActions = {

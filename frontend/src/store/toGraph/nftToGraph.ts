@@ -1,11 +1,11 @@
 import { ElementDefinition } from 'cytoscape';
-import { RestructuredNft } from './nftTransformer';
+import { ProcessedNft } from '../preprocess/nftPreprocess';
 import { HOOK_METADATA } from '@/types/nft';
 
 /**
  * Converts restructured NFT data into Cytoscape elements.
  */
-export function nftToGraph(restructured: RestructuredNft, hook: string): ElementDefinition[] {
+export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDefinition[] {
   const elements: ElementDefinition[] = [];
   const metadata = HOOK_METADATA[hook];
 
