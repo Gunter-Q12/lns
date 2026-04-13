@@ -21,8 +21,10 @@ async def get_path(
         cmd = ["lsns", "--json", "-t", "net"]
     elif path == "nft" or path == "/nft":
         cmd = ["nft", "--json", "list", "ruleset"]
-    elif path == "route" or path == "/route":
-        cmd = ["ip", "--json", "route", "show", "table", "all"]
+    elif path == "route4" or path == "/route":
+        cmd = ["ip", "-4", "--json", "route", "show", "table", "all"]
+    elif path == "route6" or path == "/route":
+        cmd = ["ip", "-6", "--json", "route", "show", "table", "all"]
     elif path == "rule4" or path == "/rule4":
         cmd = ["ip", "--json", "rule"]
     elif path == "rule6" or path == "/rule6":

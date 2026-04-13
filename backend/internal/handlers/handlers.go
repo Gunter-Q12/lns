@@ -35,8 +35,10 @@ func (h *Handlers) Get(c *gin.Context) {
 		cmd = []string{"lsns", "--json", "-t", "net"}
 	case "/nft":
 		cmd = []string{"nft", "--json", "list", "ruleset"}
-	case "/route":
-		cmd = []string{"ip", "--json", "route", "show", "table", "all"}
+	case "/route4":
+		cmd = []string{"ip", "-4", "--json", "route", "show", "table", "all"}
+	case "/route6":
+		cmd = []string{"ip", "-6", "--json", "route", "show", "table", "all"}
 	case "/rule4":
 		cmd = []string{"ip", "--json", "rule"}
 	case "/rule6":
