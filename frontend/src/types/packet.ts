@@ -2,12 +2,12 @@ import { Address4, Address6 } from 'ip-address';
 import { AddressMac } from './mac';
 
 export type Packet = {
-    transport?: Tcp | Udp;
-    internet?: Ipv4 | Ipv6 | Arp | Icmp;
+    transport?: Tcp | Udp | Icmp;
+    internet?: Ipv4 | Ipv6 | Arp;
     network: Ethernet;
 
-    transportProtocol: string;
-    internetProtocol: string;
+    isArp: boolean;
+    isV6: boolean;
 
     isBridge?: boolean;
     srcNamespace: string;
@@ -28,10 +28,10 @@ export type Udp = {
 
 export type Arp = {
     operation: string;
-    senderHaradwareAddr: string
-    senderProtocolAddr: string
-    targetHaradwareAddr: string
-    targetProtocolAddr: string
+    srcMac: string
+    srcIp: string
+    dstMac: string
+    dstIp: string
 };
 
 export type Icmp = {

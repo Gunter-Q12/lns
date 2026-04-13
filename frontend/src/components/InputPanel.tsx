@@ -112,11 +112,13 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
       },
       srcInterface: updatedSource.iface,
       srcNamespace: updatedSource.ns,
-      internetProtocol,
       transportProtocol,
+      isV6: false,
+      isArp: false,
     };
 
     if (internetProtocol === "arp") {
+      finalPacket.isArp = true;
       finalPacket.internet = {
         operation: "1", // Default to Request for now
         senderHaradwareAddr: updatedPacket.network.srcMac,
@@ -130,13 +132,13 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
       const dstStr = updatedPacket.internet.dstIp;
 
       if (Address4.isValid(srcStr) && Address4.isValid(dstStr)) {
-        finalPacket.internetProtocol = "ipv4";
+        finalPacket.isV6 = false;
         finalPacket.internet = {
           srcIp: new Address4(srcStr),
           dstIp: new Address4(dstStr),
         };
       } else if (Address6.isValid(srcStr) && Address6.isValid(dstStr)) {
-        finalPacket.internetProtocol = "ipv6";
+        finalPacket.isV6 = true;
         finalPacket.internet = {
           srcIp: new Address6(srcStr),
           dstIp: new Address6(dstStr),
