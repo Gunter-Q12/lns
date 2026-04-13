@@ -35,7 +35,4 @@ export const RouteAndRuleResponseSchema = z.object({
   rules: RuleResponseSchema,
 });
 
-export type IpResponse = {
-  routes: RouteResponse;
-  rules: RuleResponse;
-};
+export type IpResponse = z.infer<typeof RouteAndRuleResponseSchema>;
