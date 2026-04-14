@@ -9,6 +9,8 @@ export interface TraceResult {
     error?: string;
 }
 
+type Matcher = (packet: Packet, rule: ProcessedRuleItem) => boolean;
+
 /**
  * Checks if an IP address belongs to a pre-parsed Address object.
  */
@@ -17,18 +19,27 @@ const ipInParsedAddress = (ip: Address4 | Address6, range: Address | undefined):
     return ip.isInSubnet(range.parsed);
 };
 
-// TODO: this kind of works but we need to create matchers to make it extensible
-const lookupRoute = (
-    dstIp: Address4 | Address6,
-    isV6: boolean,
-    routes: ProcessedRouteItem[]
-): ProcessedRouteItem | undefined => {
+function versionMatch(packet: Packet, rule: ProcessedRuleItem): boolean {
+    return packet.isV6 === rule.isV6
+}
+
+function srcMatch(packet: Packet, rule: ProcessedRuleItem): boolean {
+    return ipInParsedAddress(packet.internet.srcIp, rule.src)
+}
+
+function dstMatch(packet: Packet, rule: ProcessedRuleItem): boolean {
+    return ipInParsedAddress(packet.internet.dstIp, rule.dst)
+}
+
+
+// TODO: add ToS support
+function lookupRoute (
+    packet: Packet, routes: ProcessedRouteItem[]
+): ProcessedRouteItem | undefined {
     // Find matching routes
     const matchingRoutes = routes.filter(route =>
-        route.isV6 === isV6 && ipInParsedAddress(dstIp, route.dst)
+        route.isV6 === packet.isV6 && ipInParsedAddress(packet.internet.dstIp, route.dst)
     );
-
-    if (matchingRoutes.length === 0) return undefined;
 
     // Best route: Longest prefix match -> Lowest metric -> First in list
     matchingRoutes.sort((a, b) => {
@@ -40,45 +51,32 @@ const lookupRoute = (
         return metricA - metricB;
     });
 
-    return matchingRoutes[0];
+    return matchingRoutes.at(0);
 };
 
-export const traceIp = (packet: Packet, data: ProcessedIp): TraceResult => {
-    const appliedRules: ProcessedRuleItem[] = [];
-
-    // Extract IP objects from the packet
-    const internet = packet.internet;
-    if (!internet || !('srcIp' in internet) || !('dstIp' in internet)) {
-        return { packet, appliedRules, error: "Packet has no IP addresses" };
+function updatePacket(packet: Packet, route: ProcessedRouteItem): Packet {
+    const updatedPacket = { ...packet };
+    if (route.dev) {
+        updatedPacket.dstInterface = route.dev;
     }
+    return updatedPacket;
+}
 
-    const srcIp = internet.srcIp;
-    const dstIp = internet.dstIp;
-    const isV6 = packet.isV6;
+export function traceIp (packet: Packet, data: ProcessedIp): TraceResult {
+    const matchers: Matcher[] = [versionMatch, srcMatch, dstMatch]
 
     // 1. Evaluate rules in order of priority (already sorted)
     for (const rule of data.rules) {
-        // Only consider rules for the correct IP version
-        if (rule.isV6 !== isV6) continue;
-
-        const srcMatch = ipInParsedAddress(srcIp, rule.src);
-        const dstMatch = ipInParsedAddress(dstIp, rule.dst);
-
-        if (srcMatch && dstMatch) {
+        if (matchers.every(m => m(packet, rule))) {
             // 2. Perform table lookup
             const tableRoutes = data.routes[rule.table] || [];
-            const bestRoute = lookupRoute(dstIp, isV6, tableRoutes);
+            // TODO: add drop, nat, error options. Not just lookup
+            const bestRoute = lookupRoute(packet, tableRoutes);
 
             if (bestRoute) {
-                const updatedPacket = { ...packet };
-                if (bestRoute.dev) {
-                    updatedPacket.srcInterface = bestRoute.dev;
-                }
-                appliedRules.push(rule);
-
                 return {
-                    packet: updatedPacket,
-                    appliedRules,
+                    packet: updatePacket(packet, bestRoute),
+                    appliedRules: [rule],
                     appliedRoute: bestRoute
                 };
             }
@@ -89,7 +87,7 @@ export const traceIp = (packet: Packet, data: ProcessedIp): TraceResult => {
 
     return {
         packet,
-        appliedRules,
+        appliedRules: [],
         error: "No matching route found in any rule table"
     };
 };
