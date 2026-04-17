@@ -43,12 +43,43 @@ export const ChainDefSchema = z.object({
 });
 export type ChainDef = z.infer<typeof ChainDefSchema>;
 
+export const MatchExprSchema = z.object({
+  match: z.object({
+    op: z.string(),
+    left: z.any(),
+    right: z.any(),
+  }),
+});
+
+export const JumpExprSchema = z.object({
+  jump: z.object({
+    target: z.string(),
+  }),
+});
+
+export const AcceptExprSchema = z.object({
+    accept: z.null(),
+});
+
+export const DropExprSchema = z.object({
+    drop: z.null(),
+});
+
+export const ExprSchema = z.union([
+  MatchExprSchema,
+  JumpExprSchema,
+  AcceptExprSchema,
+  DropExprSchema,
+  z.record(z.any(), z.any()), // Fallback for other expressions
+]);
+export type Expr = z.infer<typeof ExprSchema>
+
 export const RuleDefSchema = z.object({
   handle: z.number(),
   family: z.string(),
   table: z.string(),
   chain: z.string(),
-  expr: z.array(z.any()),
+  expr: z.array(ExprSchema),
 });
 export type RuleDef = z.infer<typeof RuleDefSchema>;
 
