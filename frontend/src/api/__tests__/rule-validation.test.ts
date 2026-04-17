@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { RuleResponseSchema } from '@/types/ip';
-import ruleData from './fixtures/rule/rule4.json';
+import ruleData from '../../../testdata/rule/rule4.json';
 
 describe('RuleResponseSchema Validation', () => {
   it('should successfully parse rule4.json', () => {

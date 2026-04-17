@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 
 describe('Schema Bulk Validation', () => {
-  const fixturesBaseDir = path.resolve(__dirname, 'fixtures');
+  const fixturesBaseDir = path.resolve(__dirname, '../../../testdata');
 
   const testSuites = [
     { name: 'NftResponseSchema', dir: 'nft', schema: NftResponseSchema },
