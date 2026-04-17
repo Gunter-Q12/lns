@@ -2,9 +2,10 @@ import { create } from 'zustand';
 import { ElementDefinition } from 'cytoscape';
 
 import { ProcessedNft, restructureNft } from './preprocess/nftPreprocess';
-import { nftToGraph } from './toGraph/nftToGraph';
+import { nftToGraph, translateNftTraceResult } from './toGraph/nftToGraph';
 import { Packet, Change } from '@/types/packet';
 import { NftResponse } from '@/types/nft';
+import { traceNftPacket } from './trace/nftTrace';
 
 type NftActions = {
   setData: (data: Map<string, NftResponse>) => void;
@@ -34,25 +35,23 @@ const useNftStore = create<NftStore>((set, get) => ({
     },
     tracePacket: (packet: Packet, hook: string, namespace: string): [Packet, Change[]] => {
       const namespaceData = get().data.get(namespace);
-      const changes: Change[] = [];
-
-      if (namespaceData) {
-        const hookData = namespaceData.get(hook);
-        if (hookData) {
-          hookData.forEach(([, rules]) => {  // TODO: order by priority
-            rules.forEach((rule) => {
-              changes.push({
-                namespace: namespace,
-                hook: hook,
-                id: `${rule.handle}_rule`,
-                decision: "accept",  // TODO: set proper decision
-              });
-            });
-          });
-        }
+      if (!namespaceData) {
+        return [packet, []];
       }
 
-      return [packet, changes];
+      const hookData = namespaceData.get(hook);
+      if (!hookData) {
+        return [packet, []];
+      }
+
+      // Convert hookData Map<string, [ChainDef, RuleDef[]]> to Map<string, { chain: ChainDef, rules: RuleDef[] }>
+      const chainsMap = new Map();
+      hookData.forEach(([chain, rules], name) => {
+        chainsMap.set(name, { chain, rules });
+      });
+
+      const traceResult = traceNftPacket(packet, chainsMap);
+      return translateNftTraceResult(traceResult, namespace, hook);
     }
   }
 }));

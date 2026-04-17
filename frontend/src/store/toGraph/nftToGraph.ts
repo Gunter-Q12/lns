@@ -1,6 +1,11 @@
 import { ElementDefinition } from 'cytoscape';
 import { ProcessedNft } from '../preprocess/nftPreprocess';
-import { HOOK_METADATA } from '@/types/nft';
+import { HOOK_METADATA, RuleDef, ChainDef } from '@/types/nft';
+import { TraceResult } from '../trace/nftTrace';
+import { Packet, Change } from '@/types/packet';
+
+const getChainId = (chain: ChainDef) => `${chain.handle}_chain`;
+const getRuleId = (rule: RuleDef) => `${rule.handle}_rule`;
 
 /**
  * Converts restructured NFT data into Cytoscape elements.
@@ -23,7 +28,7 @@ export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDef
         continue;
       }
 
-      const chainId = `${chainDef.handle}_chain`;
+      const chainId = getChainId(chainDef);
 
       // 1. Add Chain Node
       elements.push({
@@ -35,7 +40,7 @@ export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDef
 
       // 2. Add Rule Nodes (as children of the chain)
       for (const rule of rules) {
-        const ruleId = `${rule.handle}_rule`;
+        const ruleId = getRuleId(rule);
         const { matcher, action } = formatRuleExpressions(rule.expr);
 
         elements.push({
@@ -87,4 +92,38 @@ function formatRuleExpressions(expressions: any[]): { matcher: string; action: s
     matcher: matchers.join(' && '),
     action,
   };
+}
+
+/**
+ * Translates TraceResult into a final Packet and a list of path changes for Cytoscape.
+ */
+export function translateNftTraceResult(
+  result: TraceResult,
+  namespace: string,
+  hook: string
+): [Packet, Change[]] {
+  const changes: Change[] = [];
+
+  result.applied.forEach((appliedItem) => {
+    const item = appliedItem.item;
+    if ('handle' in item && 'expr' in item) {
+      // It's a RuleDef
+      changes.push({
+        namespace,
+        hook,
+        id: getRuleId(item as RuleDef),
+        decision: appliedItem.decision,
+      });
+    } else if ('handle' in item && 'name' in item) {
+      // It's a ChainDef
+      changes.push({
+        namespace,
+        hook,
+        id: getChainId(item as ChainDef),
+        decision: appliedItem.decision,
+      });
+    }
+  });
+
+  return [result.packet, changes];
 }

@@ -1,9 +1,14 @@
 import { Packet } from '../../types/packet';
 import { ChainDef, RuleDef, Expr } from '../../types/nft';
 
+export interface AppliedItem {
+  item: RuleDef | ChainDef;
+  decision: string;
+}
+
 export interface TraceResult {
   packet: Packet;
-  applied: (RuleDef | ChainDef)[];
+  applied: AppliedItem[];
 }
 
 
@@ -41,14 +46,13 @@ function applyChain(
   };
 
   for (const rule of rules) {
-    result.applied.push(rule);
-
     // Check for terminal actions in expressions
     for (const expr of rule.expr) {
       if ('match' in expr && !matchPacket(packet, expr)) {
         break;
       }
       if ('jump' in expr) {
+        result.applied.push({item: rule, decision: "jump"});
         const { chain: targetChain, rules: targetRules } = chainsMap.get(expr.jump.target) ?? {
           chain,
           rules: [],
@@ -61,6 +65,7 @@ function applyChain(
         }
       }
       if ('goto' in expr) {
+        result.applied.push({item: rule, decision: "goto"});
         const { chain: targetChain, rules: targetRules } = chainsMap.get(expr.jump.target) ?? {
           chain,
           rules: [],
@@ -68,16 +73,18 @@ function applyChain(
         return applyChain(packet, targetChain, targetRules, chainsMap);
       }
       if ('drop' in expr) {
+        result.applied.push({item: rule, decision: "drop"});
         return { terminate: true, result };
       }
       if ('accept' in expr) {
+        result.applied.push({item: rule, decision: "accept"});
         // Skip all other rules in this chain and go to next chain.
         return { terminate: false, result };
       }
     }
   }
 
-  result.applied.push(chain);
+  result.applied.push({item: chain, decision: chain.policy || "accept"});
   if (chain.policy === "drop") {
     return { terminate: true, result };
   }
