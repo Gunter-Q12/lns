@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { RouteResponseSchema } from '@/types/ip';
-import routeData from '../../../testdata/route/route4.json';
+import routeData from '../../testdata/route/route4.json';
 
 describe('RouteResponseSchema Validation', () => {
   it('should successfully parse route.json', () => {

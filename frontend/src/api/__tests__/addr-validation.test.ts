@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { AddrResponseSchema } from '@/types/addr';
-import addrData from '../../../testdata/addr/addr.json';
+import addrData from '../../testdata/addr/addr.json';
 
 describe('AddrResponseSchema Validation', () => {
   it('should successfully parse addr.json and validate ifname and local addresses', () => {
