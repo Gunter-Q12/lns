@@ -7,6 +7,15 @@ import { NftResponse, ChainDef, RuleDef } from '@/types/nft';
 export type ProcessedNft = Map<string, Map<string, { chain: ChainDef, rules: RuleDef[] }>>;
 
 /**
+ * Get the hook name for a chain.
+ * Normalizes family "ip", "ipv6", and "inet" to "ip".
+ */
+export function getHookName(chain: ChainDef): string {
+  const family = ['ip', 'ipv6', 'inet'].includes(chain.family) ? 'ip' : chain.family;
+  return `${family}_${chain.hook}`;
+}
+
+/**
  * Restructure the parsed nftables data into a mapping from hook names to mappings
  * from chain names to pairs of chain definitions and their rules.
  */
@@ -33,7 +42,7 @@ export function restructureNft(root: NftResponse): ProcessedNft {
 
   for (const [key, chain] of chains.entries()) {
     if (chain.hook) {
-      const hook = `${chain.family}_${chain.hook}`;
+      const hook = getHookName(chain);
       const ruleVec = rules.get(key) || [];
 
       if (!result.has(hook)) {

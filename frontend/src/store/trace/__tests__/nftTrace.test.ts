@@ -48,6 +48,20 @@ const testData: TestEntry[] = [
             { isChain: false, name: 'input-rule-2', decision: 'drop' },
         ],
     },
+    {
+        inputFilePath: 'filter_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('1.1.1.1'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: false, name: 'input-rule-2', decision: 'drop' },
+        ],
+    },
 ];
 
 describe('nftTrace testing setup', () => {
@@ -61,7 +75,7 @@ describe('nftTrace testing setup', () => {
             const hookData = processedNft.get(hook);
             if (!hookData) {
                 const keys = Array.from(processedNft.keys()).join(', ');
-                throw new Error(`Test data ${inputFilePath} missing "host" hook. Available hooks: ${keys}`);
+                throw new Error(`Test data ${inputFilePath} missing ${hook} hook. Available hooks: ${keys}`);
             }
 
             const result = traceNftPacket(packet, hookData);
