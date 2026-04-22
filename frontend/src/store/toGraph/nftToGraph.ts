@@ -19,7 +19,7 @@ export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDef
   }
 
   for (const [_hookName, chains] of restructured) {
-    for (const [chainName, [chainDef, rules]] of chains) {
+    for (const [chainName, { chain: chainDef, rules }] of chains) {
       // Only include chains where hook and family fields match the requested hook metadata
       const familyMatch = metadata.families.includes(chainDef.family);
       const hookMatch = metadata.hook === chainDef.hook;

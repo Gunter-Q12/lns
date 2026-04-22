@@ -44,13 +44,7 @@ const useNftStore = create<NftStore>((set, get) => ({
         return [packet, []];
       }
 
-      // Convert hookData Map<string, [ChainDef, RuleDef[]]> to Map<string, { chain: ChainDef, rules: RuleDef[] }>
-      const chainsMap = new Map();
-      hookData.forEach(([chain, rules], name) => {
-        chainsMap.set(name, { chain, rules });
-      });
-
-      const traceResult = traceNftPacket(packet, chainsMap);
+      const traceResult = traceNftPacket(packet, hookData);
       return translateNftTraceResult(traceResult, namespace, hook);
     }
   }

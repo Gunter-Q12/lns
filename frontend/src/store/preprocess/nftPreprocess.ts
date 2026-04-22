@@ -2,9 +2,9 @@ import { NftResponse, ChainDef, RuleDef } from '@/types/nft';
 
 /**
  * Maps represented as follows:
- * result: Map<hookName, Map<chainName, [chainDef, ruleDefs[]]>>  #TODO: create aliases
+ * result: Map<hookName, Map<chainName, { chain: ChainDef, rules: RuleDef[] }>>
  */
-export type ProcessedNft = Map<string, Map<string, [ChainDef, RuleDef[]]>>;
+export type ProcessedNft = Map<string, Map<string, { chain: ChainDef, rules: RuleDef[] }>>;
 
 /**
  * Restructure the parsed nftables data into a mapping from hook names to mappings
@@ -40,7 +40,7 @@ export function restructureNft(root: NftResponse): ProcessedNft {
         result.set(hook, new Map());
       }
 
-      result.get(hook)!.set(chain.name, [chain, ruleVec]);
+      result.get(hook)!.set(chain.name, { chain, rules: ruleVec });
     }
   }
 

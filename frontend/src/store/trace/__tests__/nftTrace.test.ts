@@ -17,6 +17,7 @@ interface ExpectedResult {
 interface TestEntry {
     inputFilePath: string;
     packet: Packet;
+    hook: string;
     expected: ExpectedResult[];
     expectedPacket?: Partial<Packet>;
 }
@@ -42,6 +43,7 @@ const testData: TestEntry[] = [
     {
         inputFilePath: 'arp_drop.json',
         packet: defaultPacket,
+        hook: "arp_input",
         expected: [
             { isChain: false, name: 'input-rule-2', decision: 'drop' },
         ],
@@ -49,27 +51,20 @@ const testData: TestEntry[] = [
 ];
 
 describe('nftTrace testing setup', () => {
-    testData.forEach(({ inputFilePath, packet, expected, expectedPacket }) => {
+    testData.forEach(({ inputFilePath, packet, hook, expected, expectedPacket }) => {
         it(`should trace packet correctly for ${inputFilePath}`, () => {
             const fullPath = path.resolve(__dirname, '../../../testdata/nft', inputFilePath);
             const fileContent = fs.readFileSync(fullPath, 'utf-8');
             const nftData: NftResponse = NftResponseSchema.parse(JSON.parse(fileContent));
 
             const processedNft = restructureNft(nftData);
-
-            // traceNftPacket expects a Map<string, { chain: ChainDef; rules: RuleDef[] }>
-            // restructureNft returns: Map<hookName, Map<chainName, [ChainDef, RuleDef[]]>>
-            // For testing, we might need to decide which hook to trace or flatten them.
-            // Based on traceNftPacket implementation, it iterates over all base chains in the map.
-
-            const flatChainsMap = new Map<string, { chain: ChainDef; rules: RuleDef[] }>();
-            for (const hookMap of processedNft.values()) {
-                for (const [chainName, [chain, rules]] of hookMap.entries()) {
-                    flatChainsMap.set(chainName, { chain, rules });
-                }
+            const hookData = processedNft.get(hook);
+            if (!hookData) {
+                const keys = Array.from(processedNft.keys()).join(', ');
+                throw new Error(`Test data ${inputFilePath} missing "host" hook. Available hooks: ${keys}`);
             }
 
-            const result = traceNftPacket(packet, flatChainsMap);
+            const result = traceNftPacket(packet, hookData);
 
             const actualProcessed = result.applied.map((applied) => {
                 const item = applied.item;
