@@ -57,7 +57,7 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className="cursor-help underline decoration-dotted underline-offset-4 decoration-muted-foreground/50">
-                            {change.id}
+                            {change.name || change.id}
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side={"left"}>
@@ -65,7 +65,7 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
                         </TooltipContent>
                       </Tooltip>
                     ) : (
-                      change.id
+                      change.name || change.id
                     )}
                   </TableCell>
                   <TableCell>

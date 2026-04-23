@@ -77,7 +77,8 @@ const useAddrStore = create<AddrStore>((set, get) => ({
           namespace: "host",
           hook: "interfaces_in",
           id: item ? interfaceToId(srcNamespace || "host", item.ifindex) : "",
-          decision: "other",
+          name: item ? item.ifname : "",
+          decision: "start",
         });
       }
 
@@ -113,6 +114,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
           namespace: namespace || 'host',
           hook: "interfaces_out",
           id: interfaceToId(namespace || 'host', item.ifindex),
+          name: item.ifname,
           decision: item.vEthOtherEndNs ? "accept": "finish",
         });
       }
@@ -128,6 +130,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
           namespace: item.vEthOtherEndNs,
           hook: "interfaces_in",
           id: interfaceToId(item.vEthOtherEndNs, item.link_index!), // We know link_index is set if vEth fields are set
+          name: item.vEthOtherEndIfname,
           decision: "accept",
         });
 

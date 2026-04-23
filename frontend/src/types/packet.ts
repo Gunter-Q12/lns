@@ -64,6 +64,7 @@ export type Change = {
     hook: string;
     id: string;
     decision: string;  // TODO: probably convert to enum
+    name?: string,
     description?: string;
 }
 
