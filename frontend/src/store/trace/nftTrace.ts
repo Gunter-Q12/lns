@@ -102,6 +102,11 @@ function applyChain(
         // Skip all other rules in this chain and go to next chain.
         return { terminate: false, result };
       }
+      if ('return' in expr) {
+        result.applied.push({item: rule, decision: "return"});
+        // Skip all other rules and return from jump
+        return { terminate: false, result };
+      }
     }
   }
 

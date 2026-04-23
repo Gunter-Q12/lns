@@ -22,6 +22,10 @@ export const NFT_FIELD_MAP: Record<string, Record<string, FieldExtractor>> = {
     daddr: (p) => p.internet.dstIp?.address,
     operation: (p) => 'operation' in p.internet ? p.internet.operation : "",
   },
+  meta: {
+    iifname: (p) => p.srcInterface,
+    oifname: (p) => p.dstInterface,
+  }
 };
 
 function handleAnd(leftObj: any, mask: any, packet: Packet): any {
@@ -50,11 +54,11 @@ export function getLeft(left: any, packet: Packet): any {
   if (typeof left !== "object" || left === null) return undefined;
 
   if ("payload" in left) {
-    const extractor = NFT_FIELD_MAP[left.payload.protocol]?.[left.payload.field];
-    if (!extractor) {
-      return undefined;
-    }
-    return extractor(packet);
+    return NFT_FIELD_MAP[left.payload.protocol]?.[left.payload.field]?.(packet);
+  }
+
+  if ("meta" in left) {
+    return NFT_FIELD_MAP["meta"]?.[left.meta.key]?.(packet);
   }
 
   if ("&" in left && Array.isArray(left["&"]) && left["&"].length === 2) {

@@ -76,12 +76,15 @@ function formatRuleExpressions(
     if (expr.match) {
       const m = expr.match;
       const protocol = m.left?.payload?.protocol;
+      const meta = m.left?.meta?.key;
       const field = m.left?.payload?.field;
       const op = m.op;
 
       let leftStr = '';
       if (protocol && field) {
         leftStr = `${protocol}.${field}`;
+      } else if (meta) {
+        leftStr = `${meta}`;
       } else {
         leftStr = JSON.stringify(m.left);
       }
