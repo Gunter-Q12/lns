@@ -19,55 +19,64 @@ function toAddress(value: any): Address4 | Address6 | null {
   }
 }
 
-class ValueMatcher implements Matcher {
-  private rightAddr: Address4 | Address6 | null;
-  constructor(private right: any) {
-    this.rightAddr = toAddress(right);
+function toNumber(value: any): bigint | null {
+  if (typeof value === "number") return BigInt(value);
+  if (typeof value === "string") {
+    try {
+      if (value.startsWith("0x")) {
+        return BigInt(value);
+      }
+      const n = Number(value);
+      if (!isNaN(n)) return BigInt(n);
+    } catch {
+      return null;
+    }
+  }
+  return null;
+}
+
+function compare(left: any, right: any): number | null {
+  const leftAddr = toAddress(left);
+  const rightAddr = toAddress(right);
+  if (leftAddr && rightAddr && leftAddr.v4 === rightAddr.v4) {
+    const l = leftAddr.bigInt();
+    const r = rightAddr.bigInt();
+    return l === r ? 0 : l < r ? -1 : 1;
   }
 
+  const leftNum = toNumber(left);
+  const rightNum = toNumber(right);
+  if (leftNum !== null && rightNum !== null) {
+    return leftNum === rightNum ? 0 : leftNum < rightNum ? -1 : 1;
+  }
+
+  if (typeof left === "string" && typeof right === "string") {
+    return left === right ? 0 : left < right ? -1 : 1;
+  }
+
+  return null;
+}
+
+class ValueMatcher implements Matcher {
+  constructor(private right: any) {}
+
   equal(left: any): boolean {
-    const leftAddr = toAddress(left);
-    if (leftAddr && this.rightAddr) {
-      if (leftAddr.v4 === this.rightAddr.v4) {
-        return leftAddr.bigInt() === this.rightAddr.bigInt();
-      }
-      return false;
-    }
-    return false;
+    return compare(left, this.right) === 0;
   }
 
   less(left: any): boolean {
-    const leftAddr = toAddress(left);
-    if (leftAddr && this.rightAddr) {
-      if (leftAddr.v4 === this.rightAddr.v4) {
-        return leftAddr.bigInt() < this.rightAddr.bigInt();
-      }
-      return false;
-    }
-    return false;
+    const res = compare(left, this.right);
+    return res !== null && res < 0;
   }
 }
 
 class RangeMatcher implements Matcher {
-  private startAddr: Address4 | Address6 | null;
-  private endAddr: Address4 | Address6 | null;
-
-  constructor(private range: [any, any]) {
-    this.startAddr = toAddress(range[0]);
-    this.endAddr = toAddress(range[1]);
-  }
+  constructor(private range: [any, any]) {}
 
   equal(left: any): boolean {
-    const leftAddr = toAddress(left);
-    if (
-      leftAddr && this.startAddr && this.endAddr &&
-      leftAddr.v4 === this.startAddr.v4 &&
-      leftAddr.v4 === this.endAddr.v4
-    ) {
-      const leftInt = leftAddr.bigInt();
-      return leftInt >= this.startAddr.bigInt() && leftInt <= this.endAddr.bigInt();
-    }
-    return false;
+    const startRes = compare(left, this.range[0]);
+    const endRes = compare(left, this.range[1]);
+    return startRes !== null && endRes !== null && startRes >= 0 && endRes <= 0;
   }
 
   less(_left: any): boolean {
