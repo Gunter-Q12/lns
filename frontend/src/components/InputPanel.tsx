@@ -41,7 +41,7 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
   const [transportProtocol, setTransportProtocol] = useState<string>("udp")
   // State to track source UI only
   const [source, setSource] = useState({
-    ns: "",
+    ns: "host",
     iface: ""
   });
 
