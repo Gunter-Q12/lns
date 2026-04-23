@@ -17,6 +17,11 @@ export const NFT_FIELD_MAP: Record<string, Record<string, FieldExtractor>> = {
     saddr: (p) => p.internet.srcIp?.address,
     daddr: (p) => p.internet.dstIp?.address,
   },
+  arp: {
+    saddr: (p) => p.internet.srcIp?.address,
+    daddr: (p) => p.internet.dstIp?.address,
+    operation: (p) => 'operation' in p.internet ? p.internet.operation : "",
+  },
 };
 
 function handleAnd(leftObj: any, mask: any, packet: Packet): any {

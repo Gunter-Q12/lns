@@ -61,7 +61,7 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
                           </span>
                         </TooltipTrigger>
                         <TooltipContent side={"left"}>
-                          <p>{change.description}</p>
+                          <p className="whitespace-pre-wrap">{change.description}</p>
                         </TooltipContent>
                       </Tooltip>
                     ) : (

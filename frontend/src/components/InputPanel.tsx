@@ -140,7 +140,7 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
       }
 
       finalPacket.internet = {
-        operation: "1", // Default to Request for now
+        operation: "request", // Default to Request for now
         srcMac: updatedPacket.network.srcMac,
         srcIp,
         dstMac: updatedPacket.network.dstMac,
@@ -335,13 +335,13 @@ function InputPanel({ handleTrace, listInterfaces }: InputPanelProps) {
           {internetProtocol === "arp" && (
             <FormGroup>
               <Label>ARP Operations</Label>
-              <Select value="1">
+              <Select value="request">
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Protocol" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1">Request</SelectItem>
-                  <SelectItem value="2">Reply</SelectItem>
+                  <SelectItem value="request">Request</SelectItem>
+                  <SelectItem value="reply">Reply</SelectItem>
                 </SelectContent>
               </Select>
             </FormGroup>

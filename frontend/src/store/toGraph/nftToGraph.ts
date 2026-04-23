@@ -69,9 +69,16 @@ function formatRuleExpressions(expressions: any[]): { matcher: string; action: s
   for (const expr of expressions) {
     if (expr.match) {
       const m = expr.match;
-      const protocol = m.left?.payload?.protocol || 'unknown';
-      const field = m.left?.payload?.field || 'unknown';
-      const op = m.op || 'unknown';
+      const protocol = m.left?.payload?.protocol;
+      const field = m.left?.payload?.field;
+      const op = m.op;
+
+      let leftStr = '';
+      if (protocol && field) {
+        leftStr = `${protocol}.${field}`;
+      } else {
+        leftStr = JSON.stringify(m.left);
+      }
 
       let rightVal = '';
       if (typeof m.right === 'object' && m.right !== null) {
@@ -80,7 +87,11 @@ function formatRuleExpressions(expressions: any[]): { matcher: string; action: s
         rightVal = String(m.right);
       }
 
-      matchers.push(`${protocol}.${field} ${op} ${rightVal}`);
+      if (op) {
+        matchers.push(`${leftStr} ${op} ${rightVal}`);
+      } else {
+        matchers.push(`${leftStr} == ${rightVal}`);
+      }
     } else if (expr.drop !== undefined) {
       action = 'Drop';
     } else if (expr.accept !== undefined) {
@@ -107,11 +118,14 @@ export function translateNftTraceResult(
   result.applied.forEach((appliedItem) => {
     const item = appliedItem.item;
     if ('handle' in item && 'expr' in item) {
+      const { matcher } = formatRuleExpressions(item.expr);
       // It's a RuleDef
       changes.push({
         namespace,
         hook,
         id: getRuleId(item as RuleDef),
+        name: matcher,
+        description: `${JSON.stringify(item.expr, null, 2)}`,
         decision: appliedItem.decision,
       });
     } else if ('handle' in item && 'name' in item) {
@@ -120,6 +134,7 @@ export function translateNftTraceResult(
         namespace,
         hook,
         id: getChainId(item as ChainDef),
+        name: `Chain: ${item.name}`,
         decision: appliedItem.decision,
       });
     }
