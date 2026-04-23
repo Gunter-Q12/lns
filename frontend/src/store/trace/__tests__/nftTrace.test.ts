@@ -50,6 +50,14 @@ const testData: TestEntry[] = [
     },
     {
         inputFilePath: 'filter_drop.json',
+        packet: defaultPacket,
+        hook: "ip_input",
+        expected: [
+            { isChain: true, name: 'input', decision: 'accept' },
+        ],
+    },
+    {
+        inputFilePath: 'filter_drop.json',
         packet: {
             ...defaultPacket,
             internet: {

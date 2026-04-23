@@ -1,0 +1,66 @@
+{
+    "nftables": [
+        {
+            "metainfo": {
+                "version": "1.0.9",
+                "release_name": "Old Doc Yak #3",
+                "json_schema_version": 1
+            }
+        },
+        {
+            "table": {
+                "family": "inet",
+                "name": "demo",
+                "handle": 1
+            }
+        },
+        {
+            "chain": {
+                "family": "inet",
+                "table": "demo",
+                "name": "input",
+                "handle": 1,
+                "type": "filter",
+                "hook": "input",
+                "prio": 0,
+                "policy": "accept"
+            }
+        },
+        {
+            "rule": {
+                "family": "inet",
+                "table": "demo",
+                "chain": "input",
+                "handle": 15,
+                "expr": [
+                    {
+                        "vmap": {
+                            "key": {
+                                "payload": {
+                                    "protocol": "tcp",
+                                    "field": "sport"
+                                }
+                            },
+                            "data": {
+                                "set": [
+                                    [
+                                        25,
+                                        {
+                                            "accept": null
+                                        }
+                                    ],
+                                    [
+                                        28,
+                                        {
+                                            "drop": null
+                                        }
+                                    ]
+                                ]
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}
