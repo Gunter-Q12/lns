@@ -41,14 +41,6 @@ const defaultPacket: Packet = {
 
 const testData: TestEntry[] = [
     {
-        inputFilePath: 'arp_drop.json',
-        packet: defaultPacket,
-        hook: "arp_input",
-        expected: [
-            { isChain: false, name: 'input-rule-2', decision: 'drop' },
-        ],
-    },
-    {
         inputFilePath: 'filter_drop.json',
         packet: defaultPacket,
         hook: "ip_input",
@@ -68,6 +60,174 @@ const testData: TestEntry[] = [
         hook: "ip_input",
         expected: [
             { isChain: false, name: 'input-rule-2', decision: 'drop' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_logic_and_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('192.168.1.1'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: false, name: 'input-rule-10', decision: 'drop' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_logic_and_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('192.168.1.2'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: true, name: 'input', decision: 'accept' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_less_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('0.0.0.120'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: false, name: 'input-rule-11', decision: 'drop' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_less_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('0.0.0.128'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: true, name: 'input', decision: 'accept' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_mask_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('192.168.2.5'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: false, name: 'input-rule-8', decision: 'drop' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_mask_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('192.168.3.5'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: true, name: 'input', decision: 'accept' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_not_mask_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('192.168.3.1'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: false, name: 'input-rule-9', decision: 'drop' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_not_mask_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                srcIp: new Address4('192.168.2.1'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: true, name: 'input', decision: 'accept' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_not_range_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                dstIp: new Address4('192.168.1.1'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: false, name: 'input-rule-5', decision: 'drop' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_not_range_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                dstIp: new Address4('192.168.0.100'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: true, name: 'input', decision: 'accept' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_range_in_set_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                dstIp: new Address4('192.168.0.50'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: false, name: 'input-rule-6', decision: 'drop' },
+        ],
+    },
+    {
+        inputFilePath: 'ip_range_in_set_drop.json',
+        packet: {
+            ...defaultPacket,
+            internet: {
+                ...defaultPacket.internet,
+                dstIp: new Address4('192.168.1.1'),
+            } as any,
+        },
+        hook: "ip_input",
+        expected: [
+            { isChain: true, name: 'input', decision: 'accept' },
         ],
     },
 ];
