@@ -143,7 +143,9 @@ function formatRuleExpressions(
       action = 'Accept';
     } else if (expr.jump !== undefined) {
       jumpTarget = expr.jump.target;
-      action = `Jump: ${jumpTarget}`;
+      action = `Jump`;
+    } else if (expr.return !== undefined) {
+      action = `Return`
     }
   }
 
