@@ -11,6 +11,9 @@ export type ProcessedNft = Map<string, Map<string, { chain: ChainDef, rules: Rul
  * Normalizes family "ip", "ipv6", and "inet" to "ip".
  */
 export function getHookName(chain: ChainDef): string {
+  if (!chain.hook) {
+    return "hookless";
+  }
   const family = ['ip', 'ipv6', 'inet'].includes(chain.family) ? 'ip' : chain.family;
   return `${family}_${chain.hook}`;
 }
@@ -41,16 +44,14 @@ export function restructureNft(root: NftResponse): ProcessedNft {
   const result: ProcessedNft = new Map();
 
   for (const [key, chain] of chains.entries()) {
-    if (chain.hook) {
-      const hook = getHookName(chain);
-      const ruleVec = rules.get(key) || [];
+    const hook = getHookName(chain);
+    const ruleVec = rules.get(key) || [];
 
-      if (!result.has(hook)) {
-        result.set(hook, new Map());
-      }
-
-      result.get(hook)!.set(chain.name, { chain, rules: ruleVec });
+    if (!result.has(hook)) {
+      result.set(hook, new Map());
     }
+
+    result.get(hook)!.set(chain.name, { chain, rules: ruleVec });
   }
 
   return result;
