@@ -1,0 +1,41 @@
+{
+   "namespaces": [
+      {
+         "ns": 4026531840,
+         "type": "net",
+         "nprocs": 105,
+         "pid": 1,
+         "user": "root",
+         "netnsid": "unassigned",
+         "nsfs": null,
+         "command": "/sbin/init"
+      },{
+         "ns": 4026532276,
+         "type": "net",
+         "nprocs": 1,
+         "pid": 2129,
+         "user": "root",
+         "netnsid": "2",
+         "nsfs": "/run/docker/netns/6772672e60ad",
+         "command": "/bin/bash"
+      },{
+         "ns": 4026532346,
+         "type": "net",
+         "nprocs": 1,
+         "pid": 2136,
+         "user": "root",
+         "netnsid": "1",
+         "nsfs": "/run/docker/netns/0b4b9baa433a",
+         "command": "/bin/bash"
+      },{
+         "ns": 4026532415,
+         "type": "net",
+         "nprocs": 1,
+         "pid": 2144,
+         "user": "root",
+         "netnsid": "0",
+         "nsfs": "/run/docker/netns/31beedc22845",
+         "command": "/bin/bash"
+      }
+   ]
+}
