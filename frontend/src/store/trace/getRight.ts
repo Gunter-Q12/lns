@@ -84,14 +84,39 @@ class RangeMatcher implements Matcher {
   }
 }
 
+class PrefixMatcher implements Matcher {
+  private addr: Address4 | Address6 | null;
+
+  constructor(prefix: { addr: string; len: string }) {
+    this.addr = toAddress(prefix.addr + "/" + prefix.len);
+  }
+
+  equal(left: any): boolean {
+    const leftAddr = toAddress(left);
+    if (this.addr && leftAddr && this.addr.v4 === leftAddr.v4) {
+      return leftAddr.isInSubnet(this.addr);
+    }
+    return false;
+  }
+
+  less(_left: any): boolean {
+    return false;
+  }
+}
 
 class SetMatcher implements Matcher {
   private matchers: Matcher[] = [];
 
   constructor(set: any[]) {
     for (const val of set) {
-      if (typeof val === "object" && val !== null && "range" in val) {
-        this.matchers.push(new RangeMatcher(val.range));
+      if (typeof val === "object" && val !== null) {
+        if ("range" in val) {
+          this.matchers.push(new RangeMatcher(val.range));
+        } else if ("prefix" in val) {
+          this.matchers.push(new PrefixMatcher(val.prefix));
+        } else {
+          this.matchers.push(new ValueMatcher(val));
+        }
       } else {
         this.matchers.push(new ValueMatcher(val));
       }
@@ -114,6 +139,9 @@ export function getRight(right: any): Matcher {
     }
     if ("range" in right && Array.isArray(right.range) && right.range.length === 2) {
       return new RangeMatcher(right.range);
+    }
+    if ("prefix" in right) {
+      return new PrefixMatcher(right.prefix);
     }
   }
   return new ValueMatcher(right);

@@ -1,6 +1,5 @@
 import { Packet } from '../../types/packet';
 import { ChainDef, RuleDef, Expr } from '../../types/nft';
-import { getPacketFieldValue } from './nftFieldMapping';
 import { getRight } from "./getRight"
 import { getLeft } from './getLeft';
 
