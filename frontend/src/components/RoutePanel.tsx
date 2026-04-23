@@ -44,7 +44,7 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
                   className="cursor-pointer"
                   onClick={() => {
                     const newView = [
-                      { id: change.namespace, label: change.namespace },
+                      { id: `namespace_${change.namespace}`, label: change.namespace },
                       { id: change.hook, label: change.hook },
                     ];
                     setView(newView)
