@@ -38,7 +38,7 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {changes.map((change, i) => (
+              {changes.filter(change => !change.highlightOnly).map((change, i) => (
                 <TableRow
                   key={i}
                   className="cursor-pointer"

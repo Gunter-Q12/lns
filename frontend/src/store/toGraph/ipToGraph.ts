@@ -7,6 +7,16 @@ const getRuleId = (priority: number, index: number) => `rule-${priority}-${index
 const getTableId = (tableName: string) => `table-${tableName}`;
 const getRouteId = (tableName: string, index: number) => `route-${tableName}-${index}`;
 
+const getRuleName = (rule: any) => {
+  const src = rule.src ? `${rule.src.label}` : '';
+  const dst = rule.dst ? `${rule.dst.label}` : '';
+  return `${src} -> ${dst}`;
+};
+
+const getRouteName = (route: any) => {
+  return `${route.dst.label} via ${route.dev}`;
+};
+
 /**
  * Converts ProcessedIp (rules and routes) into Cytoscape ElementDefinitions.
  *
@@ -23,14 +33,11 @@ export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
   // 1. Process Rules (already sorted in data.rules)
   data.rules.forEach((rule, index) => {
     const ruleId = getRuleId(rule.priority, index);
-    const src = rule.src ? `${rule.src.label}` : ''
-    const dst = rule.dst ? ` to ${rule.dst.label}` : '';
-    const name = `${src}${dst}`;
 
     elements.push({
       data: {
         id: ruleId,
-        name: name,
+        name: getRuleName(rule),
         type: 'rule',
         priority: rule.priority
       }
@@ -63,12 +70,11 @@ export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
 
     routes.forEach((route, index) => {
       const routeId = getRouteId(tableName, index);
-      const name = `${route.dst.label} via ${route.dev}`;
 
       elements.push({
         data: {
           id: routeId,
-          name: name,
+          name: getRouteName(route),
           parent: tableId,
           type: 'route'
         }
@@ -99,7 +105,9 @@ export const translateTraceResult = (
         namespace: namespace,
         hook: hook,
         id: getRuleId(rule.priority, index),
-        decision: 'other'
+        decision: 'match',
+        name: `Rule to table ${rule.table}`,
+        description: getRuleName(rule),
       });
 
       // Highlight the table this rule points to
@@ -107,7 +115,8 @@ export const translateTraceResult = (
         namespace: namespace,
         hook: hook,
         id: getTableId(rule.table),
-        decision: 'other'
+        decision: 'other',
+        highlightOnly: true,
       });
     }
   });
@@ -124,8 +133,9 @@ export const translateTraceResult = (
         namespace: namespace,
         hook: hook,
         id: getRouteId(tableName, index),
-        decision: 'other',
-        description: `Routed via ${route.dev}`
+        decision: 'match',
+        name: `Routed via ${route.dev}`,
+        description: getRouteName(route),
       });
     }
   }

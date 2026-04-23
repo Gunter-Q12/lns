@@ -66,6 +66,7 @@ export type Change = {
     decision: string;  // TODO: probably convert to enum
     name?: string,
     description?: string;
+    highlightOnly?: boolean;
 }
 
 
