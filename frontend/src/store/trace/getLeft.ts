@@ -1,5 +1,6 @@
 import { Packet } from "@/types/packet";
 import { toAddress, toNumber } from "./packetMatch";
+import { Address4, Address6 } from "ip-address";
 
 /**
  * Type definition for a function that extracts a field value from a Packet.
@@ -27,7 +28,7 @@ function handleAnd(leftObj: any, mask: any, packet: Packet): any {
   const maskAddr = toAddress(mask);
   if (addr && maskAddr && addr.v4 === maskAddr.v4) {
     const result = addr.bigInt() & maskAddr.bigInt();
-    return result.toString();
+    return addr.v4 ? Address4.fromBigInt(result).address : Address6.fromBigInt(result).address;
   }
 
   // Handle bitwise AND for numbers

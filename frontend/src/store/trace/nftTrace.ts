@@ -27,6 +27,8 @@ function matchPacket(packet: Packet, expr: Expr): boolean {
     const { left } = match;
     const value = getLeft(left, packet);
 
+    console.log("Matching:", { left, value, op: match.op, right });
+
     if (!('op' in match)) return false;
     const { op } = match;
     switch (op) {
