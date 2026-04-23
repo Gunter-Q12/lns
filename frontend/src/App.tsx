@@ -341,7 +341,8 @@ function App() {
     while (!finish && cnt < 100) {
       cnt += 1;
 
-      if (allChanges.at(-1)?.id === "local_process") {
+      if (allChanges.at(-1)?.hook === "local_process") {
+        console.log("LOCAL PROCESS")
         localIpPacketTrace();
         continue;
       }

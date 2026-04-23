@@ -66,7 +66,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
         changes.push({
           namespace: srcNamespace || "host",
           hook: "local_process",
-          id: "",
+          id: "Local process",
           decision: "other",
         });
       } else {
