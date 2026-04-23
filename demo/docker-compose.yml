@@ -1,0 +1,34 @@
+services:
+  node1:
+    build:
+      context: ../testing/docker
+      dockerfile: Dockerfile
+    networks:
+      - custom-network
+    cap_add:
+      - NET_ADMIN
+    tty: true
+
+  node2:
+    build:
+      context: ../testing/docker
+      dockerfile: Dockerfile
+    networks:
+      - custom-network
+    cap_add:
+      - NET_ADMIN
+    tty: true
+
+  node3:
+    build:
+      context: ../testing/docker
+      dockerfile: Dockerfile
+    networks:
+      - default
+    cap_add:
+      - NET_ADMIN
+    tty: true
+
+networks:
+  custom-network:
+    driver: bridge
