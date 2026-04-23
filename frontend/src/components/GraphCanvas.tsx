@@ -45,6 +45,7 @@ export function GraphCanvas({ elements, stylesheet = [], className, cy }: GraphC
         stylesheet={finalStylesheet}
         boxSelectionEnabled={false}
         zoom={0.7}
+        wheelSensitivity={1}
         cy={cy}
       />
     </div>
