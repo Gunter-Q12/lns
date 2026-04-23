@@ -303,8 +303,8 @@ function App() {
         if (isBridge(packet.dstInterface, currentNamespace())) {
           callNftTrace("bridge_output");
           callNftTrace("bridge_postrouting");
-          endTrace();
         }
+        endTrace();
     }
 
     function localIpPacketTrace() {
@@ -341,7 +341,7 @@ function App() {
     while (!finish && cnt < 100) {
       cnt += 1;
 
-      if (allChanges.at(-1)?.id == "local_process") {
+      if (allChanges.at(-1)?.id === "local_process") {
         localIpPacketTrace();
         continue;
       }
@@ -359,8 +359,6 @@ function App() {
       }
 
       ingressIpPacketTrace();
-      continue;
-
     }
     if (cnt >= 100) {
       console.error("INFINITE LOOP DETECTED")

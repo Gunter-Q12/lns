@@ -107,6 +107,16 @@ const useAddrStore = create<AddrStore>((set, get) => ({
       const addrData = get().data.get(namespace || 'host');
       const item = addrData?.find(i => i.ifname === dstInterface);
 
+      const changes: Change[] = [];
+      if (item) {
+        changes.push({
+          namespace: namespace || 'host',
+          hook: "interfaces_out",
+          id: interfaceToId(namespace || 'host', item.ifindex),
+          decision: "accept",
+        });
+      }
+
       if (item?.vEthOtherEndNs && item?.vEthOtherEndIfname) {
         const nextPacket = {
           ...packet,
@@ -114,25 +124,17 @@ const useAddrStore = create<AddrStore>((set, get) => ({
           srcInterface: item.vEthOtherEndIfname
         };
 
-        const changes: Change[] = [
-          {
-            namespace: item.vEthOtherEndNs,
-            hook: "interfaces_in",
-            id: interfaceToId(namespace || 'host', item.ifindex),
-            decision: "accept",
-          },
-          {
-            namespace: item.vEthOtherEndNs,
-            hook: "interfaces_in",
-            id: interfaceToId(item.vEthOtherEndNs, item.link_index!), // We know link_index is set if vEth fields are set
-            decision: "accept",
-          }
-        ];
+        changes.push({
+          namespace: item.vEthOtherEndNs,
+          hook: "interfaces_in",
+          id: interfaceToId(item.vEthOtherEndNs, item.link_index!), // We know link_index is set if vEth fields are set
+          decision: "accept",
+        });
 
         return [true, nextPacket, changes];
       }
 
-      return [false, packet, []];
+      return [false, packet, changes];
     }
   }
 }));
