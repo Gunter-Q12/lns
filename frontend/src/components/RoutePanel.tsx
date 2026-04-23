@@ -30,11 +30,11 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
       </p>
       <ScrollArea className="flex-1 -mx-4 px-4 overflow-y-auto pb-4">
         <div className="mt-4 flex-1 overflow-auto">
-          <Table>
+          <Table className="table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead>Rule</TableHead>
-                <TableHead>Decision</TableHead>
+                <TableHead className="w-full">Rule</TableHead>
+                <TableHead className="w-[100px]">Decision</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -52,11 +52,11 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
                   }
                   }
                 >
-                  <TableCell className="font-medium">
+                  <TableCell className="font-medium truncate overflow-hidden">
                     {change.description ? (
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <span className="cursor-help underline decoration-dotted underline-offset-4 decoration-muted-foreground/50">
+                          <span className="cursor-help underline decoration-dotted underline-offset-4 decoration-muted-foreground/50 truncate block">
                             {change.name || change.id}
                           </span>
                         </TooltipTrigger>
@@ -65,7 +65,9 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
                         </TooltipContent>
                       </Tooltip>
                     ) : (
-                      change.name || change.id
+                      <span className="truncate block">
+                        {change.name || change.id}
+                      </span>
                     )}
                   </TableCell>
                   <TableCell>
