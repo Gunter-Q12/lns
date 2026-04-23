@@ -1,6 +1,6 @@
 import { ElementDefinition } from 'cytoscape';
 import { ProcessedNft } from '../preprocess/nftPreprocess';
-import { HOOK_METADATA, RuleDef, ChainDef } from '@/types/nft';
+import { RuleDef, ChainDef } from '@/types/nft';
 import { TraceResult } from '../trace/nftTrace';
 import { Packet, Change } from '@/types/packet';
 
@@ -12,52 +12,14 @@ const getRuleId = (rule: RuleDef) => `${rule.handle}_rule`;
  */
 export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDefinition[] {
   const elements: ElementDefinition[] = [];
-  const metadata = HOOK_METADATA[hook];
+  const chainsMap = restructured.get(hook);
 
-  if (!metadata) {
+  if (!chainsMap) {
     return elements;
   }
 
-  // 1. Get a flat map of ALL chains for lookup
-  const allChains = new Map<string, { chain: ChainDef; rules: RuleDef[] }>();
-  for (const [_hookName, chains] of restructured) {
-    for (const [chainName, data] of chains) {
-      allChains.set(chainName, data);
-    }
-  }
-
-  // 2. Discover all reachable chains starting from the hook's base chains
-  const reachableChainNames = new Set<string>();
-  const worklist: string[] = [];
-
-  // Initialize worklist with base chains for this hook using the decoupled 'restructured' map
-  const hookChainsMap = restructured.get(hook) || new Map();
-  for (const [chainName, _data] of hookChainsMap) {
-    reachableChainNames.add(chainName);
-    worklist.push(chainName);
-  }
-
-  // Breadth-first traversal to find all jumped-to chains
-  let head = 0;
-  while (head < worklist.length) {
-    const currentName = worklist[head++];
-    const data = allChains.get(currentName);
-    if (!data) continue;
-
-    for (const rule of data.rules) {
-      const { jumpTarget } = formatRuleExpressions(rule.expr);
-      if (jumpTarget && allChains.has(jumpTarget) && !reachableChainNames.has(jumpTarget)) {
-        reachableChainNames.add(jumpTarget);
-        worklist.push(jumpTarget);
-      }
-    }
-  }
-
-  // 3. Generate graph elements for all reachable chains and their rules
-  for (const chainName of reachableChainNames) {
-    const data = allChains.get(chainName);
-    if (!data) continue;
-
+  // Generate graph elements for all reachable chains and their rules
+  for (const [chainName, data] of chainsMap) {
     const chainId = getChainId(data.chain);
 
     // Add Chain Node
@@ -71,7 +33,7 @@ export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDef
     // Add Rule Nodes and edges
     for (const rule of data.rules) {
       const ruleId = getRuleId(rule);
-      const { matcher, action, jumpTarget } = formatRuleExpressions(rule.expr);
+      const { matcher, action } = formatRuleExpressions(rule.expr);
 
       elements.push({
         data: {
@@ -83,8 +45,8 @@ export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDef
         },
       });
 
-      if (jumpTarget) {
-        const targetData = allChains.get(jumpTarget);
+      if (rule.jumpsTo) {
+        const targetData = chainsMap.get(rule.jumpsTo);
         if (targetData) {
           elements.push({
             data: {
@@ -106,10 +68,9 @@ export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDef
  */
 function formatRuleExpressions(
   expressions: any[]
-): { matcher: string; action: string; jumpTarget?: string } {
+): { matcher: string; action: string } {
   const matchers: string[] = [];
   let action = 'Unknown';
-  let jumpTarget: string | undefined;
 
   for (const expr of expressions) {
     if (expr.match) {
@@ -142,7 +103,6 @@ function formatRuleExpressions(
     } else if (expr.accept !== undefined) {
       action = 'Accept';
     } else if (expr.jump !== undefined) {
-      jumpTarget = expr.jump.target;
       action = `Jump`;
     } else if (expr.return !== undefined) {
       action = `Return`
@@ -152,7 +112,6 @@ function formatRuleExpressions(
   return {
     matcher: matchers.length > 0 ? matchers.join(' && ') : 'always',
     action,
-    jumpTarget,
   };
 }
 

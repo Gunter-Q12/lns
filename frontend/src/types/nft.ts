@@ -80,6 +80,7 @@ export const RuleDefSchema = z.object({
   table: z.string(),
   chain: z.string(),
   expr: z.array(ExprSchema),
+  jumpsTo: z.string().optional(),
 });
 export type RuleDef = z.infer<typeof RuleDefSchema>;
 
