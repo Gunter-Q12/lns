@@ -7,7 +7,7 @@ interface Matcher {
   less(left: any): boolean;
 }
 
-export function toAddress(value: any): Address4 | Address6 | null {
+function toAddress(value: any): Address4 | Address6 | null {
   if (typeof value !== "string") return null;
   try {
     if (value.includes(":")) {
@@ -19,8 +19,7 @@ export function toAddress(value: any): Address4 | Address6 | null {
   }
 }
 
-export function toNumber(value: any): bigint | null {
-  if (typeof value === "bigint") return value;
+function toNumber(value: any): bigint | null {
   if (typeof value === "number") return BigInt(value);
   if (typeof value === "string") {
     try {
@@ -108,7 +107,7 @@ class SetMatcher implements Matcher {
   }
 }
 
-function getRight(right: any): Matcher {
+export function getRight(right: any): Matcher {
   if (typeof right === "object" && right !== null) {
     if ("set" in right && Array.isArray(right.set)) {
       return new SetMatcher(right.set);
@@ -118,14 +117,4 @@ function getRight(right: any): Matcher {
     }
   }
   return new ValueMatcher(right);
-}
-
-function matchPacket(packet: Packet, expr: Expr): boolean {
-    if (!('match' in expr)) return true;
-    const { match } = expr;
-
-    if (!('right' in match)) return true;
-    const { right } = match;
-
-    return false;
 }

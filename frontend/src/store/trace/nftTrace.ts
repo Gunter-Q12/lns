@@ -1,6 +1,9 @@
 import { Packet } from '../../types/packet';
 import { ChainDef, RuleDef, Expr } from '../../types/nft';
 import { getPacketFieldValue } from './nftFieldMapping';
+import { getRight } from "./getRight"
+import { getLeft } from './getLeft';
+
 
 export interface AppliedItem {
   item: RuleDef | ChainDef;
@@ -12,53 +15,31 @@ export interface TraceResult {
   applied: AppliedItem[];
 }
 
-/**
- * Strategy interface for matching specific nftables expressions
- */
-interface MatchStrategy {
-  canHandle(expr: Expr): boolean;
-  matches(packet: Packet, expr: Expr): boolean;
-}
-
-/**
- * Handles payload and meta match expressions
- */
-const PayloadMatcher: MatchStrategy = {
-  canHandle: (expr) => 'match' in expr,
-  matches: (packet, expr) => {
-    if (!('match' in expr)) return true;
+function matchPacket(packet: Packet, expr: Expr): boolean {
+    if (!('match' in expr)) return false;
     const { match } = expr;
 
-    // Handle payload/meta matches
-    if (typeof match.left === 'object' && match.left !== null && 'payload' in match.left) {
-      const { protocol, field } = match.left.payload;
-      const packetValue = getPacketFieldValue(packet, protocol, field);
-      const ruleValue = match.right;
+    if (!('right' in match)) return false;
+    const { right } = match;
+    const matcher = getRight(right);
 
-      if (match.op === '==') return packetValue === ruleValue;
-      if (match.op === '!=') return packetValue !== ruleValue;
+    if (!('left' in match)) return false;
+    const { left } = match;
+    const value = getLeft(left, packet);
+
+    if (!('op' in match)) return false;
+    const { op } = match;
+    switch (op) {
+      case "==":
+        return matcher.equal(value);
+      case "!=":
+        return !matcher.equal(value);
+      case "<":
+        return matcher.less(value);
+      case ">":
+      default:
+        return false;
     }
-
-    // Default to true for unhandled match types to avoid breaking the AND chain
-    // unless we strictly want to fail closed.
-    return true;
-  }
-};
-
-const MATCH_STRATEGIES: MatchStrategy[] = [
-  PayloadMatcher,
-];
-
-/**
- * Checks if a packet matches a single nftables rule using a strategy-based approach.
- */
-function matchPacket(packet: Packet, expr: Expr): boolean {
-    const strategy = MATCH_STRATEGIES.find(s => s.canHandle(expr));
-    if (strategy) {
-      return strategy.matches(packet, expr);
-    }
-
-    return false;
 }
 
 function combineTraceResults(left: TraceResult, right: TraceResult): TraceResult {
