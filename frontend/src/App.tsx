@@ -39,8 +39,8 @@ function App() {
   const [view, setView] = useState<ViewElement[]>([]);
   const [changes, setChanges] = useState<Change[]>([]);
   const { setData: setNftData, getGraph: getNftGraph, tracePacket: traceNftPacket } = useNftActions();
-  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket, listInterfaces, isBridge, isLocal, doesGoToNamespace } = useAddrActions();
-  const { setData: setIpData, getGraph: getIpGraph, tracePacket: traceIpPacket } = useIpActions();
+  const { setData: setAddrData, getGraph: getAddrGraph, tracePacket: traceAddrPacket, listInterfaces, isBridge, doesGoToNamespace } = useAddrActions();
+  const { setData: setIpData, getGraph: getIpGraph, tracePacket: traceIpPacket, isLocal} = useIpActions();
 
   function appendView(element: ViewElement) {
     setView(prev => {
@@ -283,8 +283,16 @@ function App() {
     function ingressIpPacketTrace() {
         callNftTrace("ip_prerouting")
         callIpTrace("ip_routing_decision");
-        if (isLocal(packet)) {
+        if (isLocal(packet, currentNamespace())) {
           callNftTrace("ip_input")
+          if (allChanges.at(-1)?.decision !== "drop") {
+            allChanges.push({
+              namespace: currentNamespace(),
+              hook: "local_process",
+              id: "Local process",
+              decision: "finish"
+            });
+          }
           finish = true;
           return;
         }
@@ -313,7 +321,7 @@ function App() {
 
     function bridgePacketTrace() {
         callNftTrace("bridge_prerouting");
-        if (isLocal(packet)) {
+        if (isLocal(packet, currentNamespace())) {
             callNftTrace("bridge_input")
             localIpPacketTrace();
         } else {
