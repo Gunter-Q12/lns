@@ -170,7 +170,10 @@ function App() {
       }
 
       if (targetNode && targetNode.nonempty()) {
-        targetNode.addClass(`decision-${change.decision}`);
+        const decisionClass = ["change", "start", "finish", "accept", "reject"].includes(change.decision)
+          ? `decision-${change.decision}`
+          : "decision";
+        targetNode.addClass(decisionClass);
         highlightedNodes.push(targetNode);
       }
     });

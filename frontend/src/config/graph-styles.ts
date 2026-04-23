@@ -26,6 +26,14 @@ export const customStylesheet: StylesheetStyle[] = [
     }
   },
   {
+    selector: '.decision-start, .decision-finish',
+    style: {
+      'background-color': '#eff6ff', // blue-50
+      'border-color': '#3b82f6',     // blue-500
+      'color': '#2563eb'             // blue-600
+    }
+  },
+  {
     selector: '.decision-change',
     style: {
       'background-color': '#fff7ed', // orange-50
@@ -34,7 +42,7 @@ export const customStylesheet: StylesheetStyle[] = [
     }
   },
   {
-    selector: '.decision-other',
+    selector: '.decision',
     style: {
       'background-color': '#faf5ff', // purple-50
       'border-color': '#a855f7',     // purple-500

@@ -67,7 +67,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
           namespace: srcNamespace || "host",
           hook: "local_process",
           id: "Local process",
-          decision: "other",
+          decision: "start",
         });
       } else {
         const addrData = get().data.get(srcNamespace || "host");
@@ -113,7 +113,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
           namespace: namespace || 'host',
           hook: "interfaces_out",
           id: interfaceToId(namespace || 'host', item.ifindex),
-          decision: "accept",
+          decision: item.vEthOtherEndNs ? "accept": "finish",
         });
       }
 

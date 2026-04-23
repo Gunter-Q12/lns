@@ -74,7 +74,8 @@ function RoutePanel({ changes, setView }: RoutePanelProps) {
                       change.decision === 'drop' && "bg-red-50 text-red-700 ring-red-600/20",
                       change.decision === 'accept' && "bg-green-50 text-green-700 ring-green-600/20",
                       change.decision === 'change' && "bg-orange-50 text-orange-700 ring-orange-600/20",
-                      change.decision === 'other' && "bg-purple-50 text-purple-700 ring-purple-600/20"
+                      (change.decision === 'start' || change.decision === 'finish') && "bg-blue-50 text-blue-700 ring-blue-600/20",
+                      !['drop', 'accept', 'change', 'start', 'finish'].includes(change.decision) && "bg-purple-50 text-purple-700 ring-purple-600/20"
                     )}>
                       {change.decision}
                     </span>
