@@ -1,5 +1,5 @@
 import { ElementDefinition } from 'cytoscape';
-import { ProcessedIp, ProcessedRouteItem } from '../preprocess/ipPreprocess';
+import { ProcessedIp } from '../preprocess/ipPreprocess';
 import { Packet, Change } from '../../types/packet';
 import { TraceResult } from '../trace/ipTrace';
 

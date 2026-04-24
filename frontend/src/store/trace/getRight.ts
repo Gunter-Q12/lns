@@ -1,5 +1,3 @@
-import { Expr } from "@/types/nft";
-import { Packet } from "@/types/packet";
 import { Address4, Address6 } from "ip-address";
 
 interface Matcher {
@@ -7,7 +5,7 @@ interface Matcher {
   less(left: any): boolean;
 }
 
-function toAddress(value: any): Address4 | Address6 | null {
+export function toAddress(value: any): Address4 | Address6 | null {
   if (typeof value !== "string") return null;
   try {
     if (value.includes(":")) {
@@ -19,7 +17,7 @@ function toAddress(value: any): Address4 | Address6 | null {
   }
 }
 
-function toNumber(value: any): bigint | null {
+export function toNumber(value: any): bigint | null {
   if (typeof value === "number") return BigInt(value);
   if (typeof value === "string") {
     try {

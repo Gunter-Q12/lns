@@ -3,7 +3,7 @@ import { ElementDefinition } from 'cytoscape';
 import { AddrResponse } from '@/types/addr';
 import { Packet, Change } from '@/types/packet';
 import { addrToGraph, interfaceToId } from './toGraph/addrToGraph';
-import { toAddress } from './trace/packetMatch';
+import { toAddress } from './trace/getRight';
 import { Address4, Address6 } from 'ip-address';
 
 type AddrActions = {

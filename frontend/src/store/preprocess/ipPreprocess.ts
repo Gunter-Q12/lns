@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { Address4, Address6 } from 'ip-address';
 import { IpResponse, RouteItem, RuleItem } from '../../types/ip';
 

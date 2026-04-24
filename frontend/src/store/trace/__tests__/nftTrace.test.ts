@@ -4,7 +4,7 @@ import * as path from 'path';
 import { traceNftPacket } from '../nftTrace';
 import { restructureNft } from '../../preprocess/nftPreprocess';
 import { Packet } from '../../../types/packet';
-import { ChainDef, RuleDef, NftResponse, NftResponseSchema } from '../../../types/nft';
+import { NftResponse, NftResponseSchema } from '../../../types/nft';
 import { Address4 } from 'ip-address';
 import { AddressMac } from '../../../types/mac';
 
