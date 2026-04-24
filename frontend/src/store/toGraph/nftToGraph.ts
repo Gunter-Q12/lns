@@ -27,6 +27,7 @@ export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDef
       data: {
         id: chainId,
         name: chainName,
+        noninteractive: true,
       },
     });
 
@@ -42,6 +43,7 @@ export function nftToGraph(restructured: ProcessedNft, hook: string): ElementDef
           parent: chainId,
           matcher,
           action,
+          noninteractive: true,
         },
       });
 

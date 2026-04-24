@@ -39,7 +39,8 @@ export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
         id: ruleId,
         name: getRuleName(rule),
         type: 'rule',
-        priority: rule.priority
+        priority: rule.priority,
+        noninteractive: true
       }
     });
 
@@ -64,7 +65,8 @@ export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
       data: {
         id: tableId,
         name: `${tableName}`,
-        type: 'table'
+        type: 'table',
+        noninteractive: true,
       }
     });
 
@@ -76,7 +78,8 @@ export const ipToGraph = (data: ProcessedIp): ElementDefinition[] => {
           id: routeId,
           name: getRouteName(route),
           parent: tableId,
-          type: 'route'
+          type: 'route',
+          noninteractive: true,
         }
       });
     });

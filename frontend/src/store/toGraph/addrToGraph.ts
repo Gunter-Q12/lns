@@ -42,7 +42,8 @@ const createInterfaceAndAddressNodes = (
         name: item.ifname,
         parent: namespaceId,
         type: 'interface',
-        ifindex: item.ifindex
+        ifindex: item.ifindex,
+        noninteractive: true,
       }
     }
   ];
@@ -54,7 +55,8 @@ const createInterfaceAndAddressNodes = (
         name: info.local,
         parent: interfaceId,
         type: 'address',
-        family: info.family
+        family: info.family,
+        noninteractive: true,
       }
     });
   });
