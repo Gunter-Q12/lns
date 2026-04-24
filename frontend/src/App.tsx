@@ -144,14 +144,14 @@ function App() {
 
   // Highlight nodes in graph
   useEffect(() => {
-    console.log("Highlight nodes in graph started", cy, changes, view);
+    console.log("Highlight nodes in graph started", cy, [...changes], view);
     if (!cy) return;
 
     const currentViewId = view.at(-1)?.id;
     const currentNamespace = getCurrentNamespace(view);
 
     // Clear previous classes
-    cy.elements().removeClass('decision-drop decision-accept decision-change decision-other decision-start decision-finish path-highlight');
+    cy.elements().removeClass('decision decision-drop decision-accept decision-change decision-start decision-finish path-highlight');
 
     // Identify and highlight nodes based on changes
     const highlightedNodes: cytoscape.CollectionReturnValue[] = [];
@@ -160,13 +160,15 @@ function App() {
       let targetNode: cytoscape.CollectionReturnValue | null = null;
 
       if (`namespace_${change.namespace}` === currentViewId) {
+        console.log("APPLIED1", change)
         targetNode = cy.getElementById(change.hook);
       } else if (change.hook === currentViewId && change.namespace === currentNamespace) {
+        console.log("APPLIED2", change)
         targetNode = cy.getElementById(change.id);
       }
 
       if (targetNode && targetNode.nonempty()) {
-        const decisionClass = ["change", "start", "finish", "accept", "reject"].includes(change.decision)
+        const decisionClass = ["change", "start", "finish", "accept", "drop"].includes(change.decision)
           ? `decision-${change.decision}`
           : "decision";
         targetNode.addClass(decisionClass);
