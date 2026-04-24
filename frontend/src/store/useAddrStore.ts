@@ -3,6 +3,8 @@ import { ElementDefinition } from 'cytoscape';
 import { AddrResponse } from '@/types/addr';
 import { Packet, Change } from '@/types/packet';
 import { addrToGraph, interfaceToId } from './toGraph/addrToGraph';
+import { toAddress } from './trace/packetMatch';
+import { Address4, Address6 } from 'ip-address';
 
 type AddrActions = {
   setData: (data: Map<string, AddrResponse>) => void;
@@ -97,10 +99,15 @@ const useAddrStore = create<AddrStore>((set, get) => ({
       if (!addrData || !ifname) {
         return false;
       }
-      return addrData.some(item => item.master === ifname);
+      const isBridge = addrData.some(item => item.master === ifname);
+      console.log("ISSBRDIGE", isBridge);
+      return isBridge;
     },
+
     doesGoToNamespace: (packet: Packet, namespace: string): [boolean, Packet, Change[]] => {
       const { dstInterface } = packet;
+      const dstIp = packet.internet.dstIp;
+
       if (!dstInterface) {
         return [false, packet, []];
       }
@@ -115,16 +122,97 @@ const useAddrStore = create<AddrStore>((set, get) => ({
           hook: "interfaces_out",
           id: interfaceToId(namespace || 'host', item.ifindex),
           name: item.ifname,
-          decision: item.vEthOtherEndNs ? "accept": "finish",
+          decision: "accept",
         });
+      } else {
+        return [false, packet, []];
       }
 
+      // If the destination interface is a bridge, we need to find which bridge child leads to the destination IP
+      if (get().actions.isBridge(item.ifname, namespace)) {
+        const bridgeChildren = addrData?.filter(i => i.master === item.ifname) || [];
+
+        for (const child of bridgeChildren) {
+          // Check if this child leads to another namespace via vEth
+          if (child.vEthOtherEndNs && child.vEthOtherEndIfname) {
+            // Check if dstIp belongs to the subnet of the peer interface in the target namespace
+            const peerNsData = get().data.get(child.vEthOtherEndNs);
+            const peerIf = peerNsData?.find(i => i.ifname === child.vEthOtherEndIfname);
+
+            if (peerIf && dstIp) {
+              const packetAddr = toAddress(dstIp.address);
+              const matchesSubnet = peerIf.addr_info.some(addr => {
+                const ifAddr = toAddress(addr.local);
+                if (packetAddr && ifAddr && packetAddr.v4 === ifAddr.v4) {
+                   const mask = addr.prefixlen;
+                   return packetAddr.isInSubnet(new (packetAddr.v4 ? Address4 : Address6)(`${addr.local}/${mask}`));
+                }
+                return false;
+              });
+
+              if (matchesSubnet) {
+                changes.push({
+                  namespace: namespace || 'host',
+                  hook: "interfaces_out",
+                  id: interfaceToId(namespace || 'host', child.ifindex),
+                  name: child.ifname,
+                  decision: "accept",
+                });
+
+                const nextPacket = {
+                  ...packet,
+                  srcNamespace: child.vEthOtherEndNs,
+                  srcInterface: child.vEthOtherEndIfname
+                };
+
+                changes.push({
+                  namespace: child.vEthOtherEndNs,
+                  hook: "interfaces_out",
+                  id: `namespace_${child.vEthOtherEndNs}`,
+                  name: `Namespace: ${child.vEthOtherEndNs}`,
+                  decision: "accept",
+                },
+                {
+                  namespace: child.vEthOtherEndNs,
+                  hook: "interfaces_in",
+                  id: interfaceToId(child.vEthOtherEndNs, child.link_index!),
+                  name: child.vEthOtherEndIfname,
+                  decision: "accept",
+                });
+
+                return [true, nextPacket, changes];
+              }
+            }
+          }
+        }
+
+        // If no child matched the destination IP, the packet is dropped by the bridge
+        changes.push({
+          namespace: namespace || 'host',
+          hook: "interfaces_out",
+          id: "Bridge Drop",
+          name: `Bridge ${item.ifname}`,
+          decision: "drop",
+          description: `No route to ${dstIp?.address}`,
+        });
+        return [false, packet, changes];
+      }
+
+      // Standard vEth logic for non-bridge interfaces
       if (item?.vEthOtherEndNs && item?.vEthOtherEndIfname) {
         const nextPacket = {
           ...packet,
           srcNamespace: item.vEthOtherEndNs,
           srcInterface: item.vEthOtherEndIfname
         };
+
+        changes.push({
+          namespace: item.vEthOtherEndNs,
+          hook: "namespace",
+          id: `namespace_${item.vEthOtherEndNs}`,
+          name: `Namespace: ${item.vEthOtherEndNs}`,
+          decision: "accept",
+        });
 
         changes.push({
           namespace: item.vEthOtherEndNs,
