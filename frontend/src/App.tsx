@@ -148,24 +148,20 @@ function App() {
     if (!cy) return;
 
     const currentViewId = view.at(-1)?.id;
+    const currentNamespace = getCurrentNamespace(view);
 
     // Clear previous classes
-    cy.elements().removeClass('decision-drop decision-accept decision-change decision-other path-highlight');
+    cy.elements().removeClass('decision-drop decision-accept decision-change decision-other decision-start decision-finish path-highlight');
 
     // Identify and highlight nodes based on changes
     const highlightedNodes: cytoscape.CollectionReturnValue[] = [];
-
-    // const isHostView = `namespace_${changes.at(0)?.namespace}` === currentViewId && highlightedNodes.length > 0;
-    // if (isHostView) {
-    //   highlightedNodes.push(cy.getElementById("ingress"))
-    // }
 
     changes.forEach(change => {
       let targetNode: cytoscape.CollectionReturnValue | null = null;
 
       if (`namespace_${change.namespace}` === currentViewId) {
         targetNode = cy.getElementById(change.hook);
-      } else if (change.hook === currentViewId) {
+      } else if (change.hook === currentViewId && change.namespace === currentNamespace) {
         targetNode = cy.getElementById(change.id);
       }
 
@@ -178,10 +174,6 @@ function App() {
       }
     });
     console.log("Highlighted and all nodes", highlightedNodes, graph)
-
-    // if (isHostView) {
-    //   highlightedNodes.push(cy.getElementById("egress"))
-    // }
 
     // Highlight paths between consecutive highlighted nodes
     if (highlightedNodes.length > 1) {
@@ -197,7 +189,7 @@ function App() {
         }
       }
     }
-  }, [graph, changes])
+  }, [graph, changes, view])
 
   // Add interactions to graph
   useEffect(() => {

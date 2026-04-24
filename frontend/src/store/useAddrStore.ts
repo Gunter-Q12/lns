@@ -166,7 +166,7 @@ const useAddrStore = create<AddrStore>((set, get) => ({
                 };
 
                 changes.push({
-                  namespace: child.vEthOtherEndNs,
+                  namespace: namespace || "host",
                   hook: "interfaces_out",
                   id: `namespace_${child.vEthOtherEndNs}`,
                   name: `Namespace: ${child.vEthOtherEndNs}`,
